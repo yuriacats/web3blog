@@ -8,11 +8,11 @@ on:
 
 jobs:
 
-  build:
+  integration_test:
 
     runs-on: ubuntu-latest
 
     steps:
     - uses: actions/checkout@v3
-    - name: Build the Docker image
+    - name: integration test 
       run: ./exec_integration.sh
