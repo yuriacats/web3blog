@@ -12,7 +12,6 @@ FROM node:20-alpine3.16 as runnner
 WORKDIR /work
 
 ENV NODE_ENV=production
-EXPOSE 3000
 
 COPY package*.json ./
 RUN npm install --omit=dev && npm cache clean --force
