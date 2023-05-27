@@ -4,6 +4,11 @@ services:
     build:
       context: backend
     ports:
-      - '4000:4000'
+      - '3000:3000'
     environment:
-      - PORT=4000
+      - PORT=3000
+  integration:
+    build:
+      context: integration
+    depends_on:
+      - backend
