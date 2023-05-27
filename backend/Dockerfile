@@ -1,5 +1,3 @@
-
-###
 FROM node:20-alpine3.16 as builder
 WORKDIR /work
 COPY package*.json ./
