@@ -1,5 +1,6 @@
 import express from 'express'
 const app: express.Express = express()
+const port = process.env.PORT || 8000;
 
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
@@ -11,8 +12,8 @@ app.use((req: express.Request, res: express.Response, next: express.NextFunction
     next();
 })
 
-app.listen(3000, () => {
-    console.log("start on port 3000")
+app.listen(port, () => {
+    console.log(`start on port ${port}`)
 })
 
 type User = {
