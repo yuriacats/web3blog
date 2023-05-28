@@ -32,11 +32,9 @@ app.listen(port, () => {
 })
 
 
-app.get('/users', (req: express.Request, res: express.Response) => {
-    connection().then(connection => {
-        const result = connection.query('SELECT * FROM author')
-        connection.end();
-        console.log(result)
-        return result
-    }).then((rows) => res.json(rows));
+app.get('/users', async (req: express.Request, res: express.Response) => {
+    const conn = await connection();
+    const result: JSON = await conn.query<JSON>('SELECT * FROM author');
+    conn.end();
+    await res.json(result);
 });
