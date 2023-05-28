@@ -7,9 +7,13 @@ services:
       - '3000:3000'
     environment:
       - PORT=3000
+      - SQL_USER=backend
+      - SQL_PASSWORD=toor
+      - SQL_HOST=db
     depends_on:
       - db
   db:
+    container_name: db
     build:
       context: db
     command: mysqld --character-set-server=utf8 --collation-server=utf8_unicode_ci
