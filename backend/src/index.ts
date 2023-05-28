@@ -5,7 +5,6 @@ const port = process.env.PORT || 8000;
 const sql_user = process.env.SQL_USER;
 const sql_password = process.env.SQL_PASSWORD;
 const sql_host = process.env.SQL_HOST;
-// dev-containerで接続する際に、docker-composeのdbを使うのでそれ用の値をデフォルト値にしています。
 
 async function connection() {
     const connection = await mysql.createConnection({
