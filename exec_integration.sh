@@ -1,7 +1,7 @@
 #!/bin/bash
 set -ux
 docker-compose build
-docker-compose up -d
+docker-compose up -d 
 docker-compose run integration ./integration.sh
 exit_code=$?
 docker-compose down

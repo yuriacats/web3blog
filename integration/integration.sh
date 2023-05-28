@@ -4,3 +4,7 @@ if [[ "${backendUsersStatus}" -ne 200 ]]; then
   echo "Backend users service is not ready yet. Status code: ${backendUsersStatus}"
   exit 1
 fi
+until mysqladmin ping -h db --silent; do
+  sleep 3
+done
+mysql -h db -P 3306 -u root -ptoor -e "select * from author " webblog
