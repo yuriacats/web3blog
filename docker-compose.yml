@@ -18,7 +18,6 @@ services:
     environment:
       - MYSQL_ROOT_PASSWORD=toor
       - MYSQL_HOST=localhost
-      - MYSQL_USER=web
   integration:
     build:
       context: integration
