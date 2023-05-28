@@ -7,11 +7,8 @@ services:
       - '3000:3000'
     environment:
       - PORT=3000
-  integration:
-    build:
-      context: integration
     depends_on:
-      - backend
+      - db
   db:
     build:
       context: db
@@ -22,3 +19,9 @@ services:
       - MYSQL_ROOT_PASSWORD=toor
       - MYSQL_HOST=localhost
       - MYSQL_USER=web
+  integration:
+    build:
+      context: integration
+    depends_on:
+      - backend
+      - db
