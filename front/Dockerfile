@@ -10,7 +10,7 @@ RUN npm run build
 FROM node:20-alpine3.16 as runnner
 WORKDIR /work
 
-ENV NODE_ENV=production
+ENV NODE_ENV=develop
 
 
 COPY --from=builder /work .

@@ -1,4 +1,4 @@
-import React, { ReactNode, Suspense } from 'react';
+import React, { Suspense } from 'react';
 import { headers } from 'next/headers';
 import getData from '../lib/featch_author';
 import styles from './page.module.css';
