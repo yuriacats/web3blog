@@ -17,6 +17,5 @@ COPY --from=builder /work .
 
 COPY ./next.config.js .
 COPY ./public ./public
-COPY ./.next ./.next
 
 CMD ["./node_modules/next/dist/bin/next", "start"]
