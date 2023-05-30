@@ -34,5 +34,9 @@
   ],
   "exclude": [
     "node_modules"
+  ],
+  "extends": [
+    "@tsconfig/next/tsconfig.json",
+    "@tsconfig/strictest/tsconfig.json"
   ]
 }

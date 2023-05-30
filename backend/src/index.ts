@@ -1,10 +1,10 @@
 import express from 'express'
 import * as mysql from 'promise-mysql'
 const app: express.Express = express()
-const port = process.env.PORT || 8000;
-const sql_user = process.env.SQL_USER;
-const sql_password = process.env.SQL_PASSWORD;
-const sql_host = process.env.SQL_HOST;
+const port = process.env['PORT'] || 8000;
+const sql_user = process.env['SQL_USER'];
+const sql_password = process.env['SQL_PASSWORD'];
+const sql_host = process.env['SQL_HOST'];
 
 async function connection() {
     const connection = await mysql.createConnection({
@@ -20,7 +20,7 @@ async function connection() {
 app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
-app.use((req: express.Request, res: express.Response, next: express.NextFunction) => {
+app.use((_: express.Request, res: express.Response, next: express.NextFunction) => {
     res.header("Access-Control-Allow-Origin", "*");
     res.header("Access-Control-Allow-Methods", "*")
     res.header("Access-Control-Allow-Headers", "*");
@@ -32,7 +32,7 @@ app.listen(port, () => {
 })
 
 
-app.get('/users', async (req: express.Request, res: express.Response) => {
+app.get('/users', async (_: express.Request, res: express.Response) => {
     const conn = await connection();
     const result: JSON = await conn.query<JSON>('SELECT * FROM author');
     conn.end();

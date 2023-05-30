@@ -1,6 +1,6 @@
 import 'server-only';
-const APIURL = process.env.BLOGAPI || 'http://host.docker.internal:8000';
-type author = { name: string }
+const APIURL = process.env['BLOGAPI'] ?? 'http://host.docker.internal:8000';
+interface author { name: string }
 export default async function getData(): Promise<string> {
     const res = await fetch(`${APIURL}/users`, { cache: 'no-store' }).catch(() => null);
     if (res === null) {
