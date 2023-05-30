@@ -19,10 +19,12 @@ jobs:
   lint_backend:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - name: backendLint
       run: cd backend && npm run lint
   lint_frontend:
     runs-on: ubuntu-latest
     steps:
+    - uses: actions/checkout@v3
     - name: frontendLint
       run: cd front && npm run lint
