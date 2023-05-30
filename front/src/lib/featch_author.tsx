@@ -1,5 +1,5 @@
 import 'server-only';
-const APIURL = process.env.BLOGAPI || 'http://backend:8000';
+const APIURL = process.env.BLOGAPI || 'http://host.docker.internal:8000';
 type author = { name: string }
 export default async function getData(): Promise<string> {
     const res = await fetch(`${APIURL}/users`, { cache: 'no-store' }).catch(() => null);
@@ -8,8 +8,7 @@ export default async function getData(): Promise<string> {
     }
 
     const AuthorList: [author] = await res.json()
-    console.log("pi!yo!")
-    const authorname = AuthorList.toString()
-    console.log("ppppp!")
+    console.log(AuthorList)
+    const authorname = AuthorList[0].name
     return authorname;
 }
