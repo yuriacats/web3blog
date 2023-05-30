@@ -1,7 +1,7 @@
 FROM node:20-alpine3.16 as builder
 WORKDIR /work
 COPY package*.json ./
-RUN npm install --omit=dev
+RUN npm install 
 COPY ./src ./src
 COPY ./tsconfig.json ./
 RUN npm run build

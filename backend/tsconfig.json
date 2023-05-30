@@ -105,5 +105,9 @@
   "include": [
     "src/**/*",
     "/work/src/**/*"
+  ],
+  "extends": [
+    "@tsconfig/node20/tsconfig.json",
+    "@tsconfig/strictest/tsconfig.json"
   ]
 }
