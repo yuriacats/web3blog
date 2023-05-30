@@ -1,12 +1,12 @@
 import express from 'express'
 import * as mysql from 'promise-mysql'
 const app: express.Express = express()
-const port = process.env['PORT'] || 8000;
+const port = process.env['PORT'] ?? 8000;
 const sql_user = process.env['SQL_USER'];
 const sql_password = process.env['SQL_PASSWORD'];
 const sql_host = process.env['SQL_HOST'];
 
-async function connection() {
+async function connection(): Promise<mysql.Connection> {
     const connection = await mysql.createConnection({
         host: sql_host,
         user: sql_user,
