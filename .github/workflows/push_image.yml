@@ -44,7 +44,7 @@ jobs:
         uses: aws-actions/amazon-ecs-deploy-task-definition@df9643053eda01f169e64a0e60233aacca83799a
         with:
           task-definition: ${{ steps.task-def.outputs.task-definition }}
-          service: ${{ secrets.FRONT_SERVICE }}
+          service: ${{ secrets.BACKEND_SERVICE }}
           cluster: ${{ secrets.CLUSTER }}
           wait-for-service-stability: true
   pack_frontend:
