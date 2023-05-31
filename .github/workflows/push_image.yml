@@ -57,6 +57,4 @@ jobs:
           IMAGE_TAG: ${{ github.sha }}
         run: |
           docker build front --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-          docker build front --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
           docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-          docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
