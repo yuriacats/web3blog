@@ -25,6 +25,7 @@ jobs:
         id: login-ecr 
       - uses: actions/checkout@v3
       - name: build and push docker image to ecr
+        id: build-image
         env:
             REPOSITORY: ${{ secrets.BACKEND_REPO }}
             IMAGE_TAG: ${{ github.sha }}
@@ -63,6 +64,7 @@ jobs:
       - uses: aws-actions/amazon-ecr-login@v1
         id: login-ecr 
       - name: build and push docker image to ecr
+        id: build-image
         env:
           REPOSITORY: ${{ secrets.FRONTEND_REPO }}
           IMAGE_TAG: ${{ github.sha }}
