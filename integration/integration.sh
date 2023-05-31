@@ -5,7 +5,7 @@ URL_STATUS_TEST(){
   local url="$1"
   local backendUsersStatus="$(curl "${url}" -o /dev/null -w '%{http_code}\n' -s)"
 if [[ "${backendUsersStatus}" -ne 200 ]]; then
-  echo "Backend users service is not ready yet. Status code: ${backendUsersStatus}"
+  echo "${url} is not ready yet. Status code: ${backendUsersStatus}"
   exit 1
 fi
 }
