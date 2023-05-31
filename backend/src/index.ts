@@ -27,6 +27,8 @@ app.use((_: express.Request, res: express.Response, next: express.NextFunction) 
     next();
 })
 
+
+
 app.listen(port, () => {
     console.log(`start on port ${port}`)
 })
@@ -34,7 +36,31 @@ app.listen(port, () => {
 
 app.get('/users', async (_: express.Request, res: express.Response) => {
     const conn = await connection();
-    const result: JSON = await conn.query<JSON>('SELECT * FROM author');
+    const result = await conn.query<author>('SELECT * FROM author');
     conn.end();
     await res.json(result);
+});
+
+interface post_raw {
+    title: string,
+    author: number,
+    create_date: number,
+    post_data: string
+}
+
+interface author {
+    id: number,
+    name: string,
+}
+
+app.get('/posts/:id', async (req: express.Request, res: express.Response): Promise<void> => {
+    const conn = await connection();
+    const postData: post_raw = await conn.query<post_raw>(`
+    SELECT title, author_id, create_date, post_data,slug 
+    FROM post_revision JOIN post ON post_revision.post_id=post.id 
+    WHERE slug='${req.params['id']}' ORDER BY create_date DESC limit 1;
+    `)
+    conn.end()
+
+    await res.json(postData)
 });
