@@ -47,7 +47,6 @@ jobs:
         REPOSITORY: ${{ secrets.BACKEND_REPO }}
         IMAGE_TAG: ${{ github.sha }}
       run: |
-        cd backend 
         docker build frontend --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
         docker build frontend --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
         docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
