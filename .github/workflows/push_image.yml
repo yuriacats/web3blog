@@ -30,8 +30,8 @@ jobs:
             REPOSITORY: ${{ secrets.FRONTEND_REPO }}
             IMAGE_TAG: ${{ github.sha }}
         run: |
-            docker build backend --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-            docker build backend --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
+            docker build  --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} backend
+            docker build  --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest backend
             docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
             docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
   pack_frontend:
@@ -56,5 +56,5 @@ jobs:
           REPOSITORY: ${{ secrets.BACKEND_REPO }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build front --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+          docker build --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} front
           docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
