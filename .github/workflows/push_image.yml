@@ -32,8 +32,8 @@ jobs:
         run: |
             docker build  --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} backend
             docker build  --tag ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest backend
-            docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
-            docker push ${{ env.REGISTRY }}/${{ env.REPOSITORY }}:latest
+            docker push ${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
+            docker push ${{ env.REPOSITORY }}:latest
   pack_frontend:
     runs-on: ubuntu-latest
     permissions:
