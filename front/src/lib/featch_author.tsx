@@ -22,25 +22,25 @@ const PostRawData = z.object({
     slug: z.string().length(20)
 });
 type PostRawData = z.infer<typeof PostRawData>;
-
 const PostData = z.object({
     title: z.string(),
     slug: z.string().length(20),
     author: z.string(),
     update_date: z.date()
+
 })
 type PostData = z.infer<typeof PostData>;
 
 export async function postData(slug: string): Promise<PostData> {
 
-    const res = await fetch(`${APIURL}/posts${slug}`, { cache: 'no-store' }).catch(() => null);
-    PostRawData.parse(res);
+    const res = await fetch(`${APIURL}/posts/${slug}`, { cache: 'no-store' }).catch(() => null);
+    const post_data = PostRawData.parse(res);
     // zodのバリデートを行う
     // author_idから読み出す処理を作る。今回はyuriaで決め打ち
     return {
-        title: "hoge",
-        slug: "44444444444444444444",
+        title: post_data.title,
+        slug: post_data.slug,
         author: "yuria",
-        update_date: new Date("2022/10/10")
+        update_date: post_data.create_date
     }
 }
