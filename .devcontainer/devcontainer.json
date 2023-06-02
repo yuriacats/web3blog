@@ -4,6 +4,9 @@
 	"features": {
 		"ghcr.io/devcontainers/features/docker-outside-of-docker:1": {},
 		"ghcr.io/devcontainers/features/github-cli:1": {}
+	},
+	"containerEnv": {
+		"BLOGAPI": "http://host.docker.internal:8000"
 	}
 	// Features to add to the dev container. More info: https://containers.dev/features.
 	// "features": {},
