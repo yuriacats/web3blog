@@ -17,14 +17,24 @@ jobs:
     - name: integration test 
       run: ./exec_integration.sh
   lint_backend:
+    defaults:
+      run:
+        working-directory: backend
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
-    - name: backendLint
-      run: cd backend && npm install && npm run lint
+    - name: backend lint
+      run:  npm install && npm run lint
+    - name: backend format
+      run: npm run format_check 
   lint_frontend:
     runs-on: ubuntu-latest
+    defaults:
+      run:
+        working-directory: front 
     steps:
     - uses: actions/checkout@v3
-    - name: frontendLint
-      run: cd front && npm install && npm run lint
+    - name: frontend lint
+      run:  npm install && npm run lint
+    - name: frontend format
+      run: npm run format_check 
