@@ -2,6 +2,7 @@ import { notFound } from 'next/navigation';
 import { z } from "zod";
 import React, { Suspense } from "react";
 import { postData } from "lib/fetch_author";
+import { resourceLimits } from 'worker_threads';
 const slugSchema = z.string().length(20)
 const PageContents = async ({ slug }: { slug: string }): Promise<React.ReactElement> => {
     console.log(`PageContents slug ${slug}`)
@@ -22,18 +23,17 @@ const PageContents = async ({ slug }: { slug: string }): Promise<React.ReactElem
 
 export default function Home({ params }: { params: { slug: string } }): React.ReactNode {
 
-    try {
-        const page_name = slugSchema.parse(params.slug);
-
-        return (
-            <main >
-                <Suspense fallback={<></>}>
-                    {/* @ts-expect-error Async Server Component */}
-                    <PageContents slug={page_name} />
-                </Suspense>
-            </main >
-        )
-    } catch {
+    const slug_parse_result = slugSchema.safeParse(params.slug);
+    if (!slug_parse_result.success) {
         return notFound();
     }
+
+    return (
+        <main >
+            <Suspense fallback={<></>}>
+                {/* @ts-expect-error Async Server Component */}
+                <PageContents slug={slug_parse_result.data} />
+            </Suspense>
+        </main >
+    )
 }
