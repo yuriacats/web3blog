@@ -1,4 +1,3 @@
-import { Params } from "next/dist/shared/lib/router/utils/route-matcher";
 import { notFound } from 'next/navigation';
 import { z } from "zod";
 import { postData } from "../../../lib/featch_author";
@@ -7,6 +6,7 @@ const slugName = z.object({
     slug: z.string().length(20)
 });
 const PageContents = async ({ slug }: { slug: string }): Promise<React.ReactElement> => {
+    console.log(`PageContents slug ${slug}`)
     const postdata = await postData(slug);
 
     return (
@@ -22,7 +22,7 @@ const PageContents = async ({ slug }: { slug: string }): Promise<React.ReactElem
 
 }
 
-export default function Home({ params }: Params): React.ReactNode {
+export default function Home({ params }: { params: { slug: string } }): React.ReactNode {
 
     try {
         const page_name = (slugName.parse(params)).slug;
@@ -30,10 +30,9 @@ export default function Home({ params }: Params): React.ReactNode {
         return (
             <main >
                 <Suspense fallback={<></>}>
+                    {/* @ts-expect-error Async Server Component */}
                     <PageContents slug={page_name} />
                 </Suspense>
-
-
             </main >
         )
     } catch {
