@@ -28,7 +28,6 @@ jobs:
     - name: backend format
       run: npm run format_check 
   lint_frontend:
-    if: false #次回PRで削除
     runs-on: ubuntu-latest
     defaults:
       run:
