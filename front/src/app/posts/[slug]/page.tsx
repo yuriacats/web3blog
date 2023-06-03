@@ -2,7 +2,7 @@ import { notFound } from 'next/navigation';
 import { z } from "zod";
 import React, { Suspense } from "react";
 import { postData } from "lib/fetch_author";
-const slugName = z.string().length(20)
+const slugSchema = z.string().length(20)
 const PageContents = async ({ slug }: { slug: string }): Promise<React.ReactElement> => {
     console.log(`PageContents slug ${slug}`)
     const postdata = await postData(slug);
@@ -23,7 +23,7 @@ const PageContents = async ({ slug }: { slug: string }): Promise<React.ReactElem
 export default function Home({ params }: { params: { slug: string } }): React.ReactNode {
 
     try {
-        const page_name = slugName.parse(params.slug);
+        const page_name = slugSchema.parse(params.slug);
 
         return (
             <main >
