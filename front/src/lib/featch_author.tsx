@@ -35,7 +35,7 @@ type PostData = z.infer<typeof PostData>;
 export async function postData(slug: string): Promise<PostData> {
     console.log(`slug: ${slug}`)
     console.log(`acsess to:${APIURL}/posts/${slug}`)
-    const res = await fetch(`${APIURL}/posts/${slug}`, { cache: 'no-store' });
+    const res = await fetch(`${APIURL}/posts/${slug}`);
     const res_json = await res.json()
     const post_data = PostRawData.parse(res_json[0]);
     // zodのバリデートを行う
