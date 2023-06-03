@@ -1,7 +1,7 @@
 import { notFound } from 'next/navigation';
 import { z } from "zod";
-import { postData } from "../../../lib/featch_author";
 import React, { Suspense } from "react";
+import { postData } from "lib/featch_author";
 const slugName = z.object({
     slug: z.string().length(20)
 });
