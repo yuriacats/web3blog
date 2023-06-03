@@ -1,5 +1,5 @@
 import React, { Suspense } from 'react';
-import getData from '../lib/featch_author';
+import getData from '../lib/fetch_author';
 import styles from './page.module.css';
 export const dynamic = 'force-dynamic';
 

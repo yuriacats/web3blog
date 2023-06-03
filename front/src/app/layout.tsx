@@ -1,11 +1,9 @@
 import './globals.css'
-import { Inter } from 'next/font/google'
 export const dynamic = 'force-dynamic';
-const inter = Inter({ subsets: ['latin'] })
 
 export const metadata = {
-  title: 'yuriacats blog',
-  description: 'yuriacats web 3 layers blog',
+  title: 'ゆりあのブログ',
+  description: 'Web三層アーキテクチャーを用いたブログです',
 }
 
 export default function RootLayout({
@@ -15,7 +13,7 @@ export default function RootLayout({
 }): React.ReactNode {
   return (
     <html lang="ja">
-      <body className={inter.className}>{children}</body>
+      <body >{children}</body>
     </html>
   )
 }
