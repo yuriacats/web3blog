@@ -2,7 +2,6 @@ import { notFound } from 'next/navigation';
 import { z } from "zod";
 import React, { Suspense } from "react";
 import { postData } from "lib/fetch_author";
-import { resourceLimits } from 'worker_threads';
 const slugSchema = z.string().length(20)
 const PageContents = async ({ slug }: { slug: string }): Promise<React.ReactElement> => {
     console.log(`PageContents slug ${slug}`)
