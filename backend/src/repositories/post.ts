@@ -30,11 +30,11 @@ export const fetchPost = async (slug: Slug): Promise<Post> => {
   const SluggedRevision = nonEmptySluggedRevisions[0];
   const authorName = (await getAuthor(SluggedRevision.author_id)).name;
   console.log(SluggedRevision.create_date);
-  const firstPost = nonEmptySluggedRevisions.slice(-1)[0];
-  if (firstPost === undefined) {
+  const firstPostRevision = nonEmptySluggedRevisions.slice(-1)[0];
+  if (firstPostRevision === undefined) {
     throw new Error();
   }
-  const createPostDate = firstPost.create_date;
+  const createPostDate = firstPostRevision.create_date;
   const result = {
     title: SluggedRevision.title,
     author: authorName,
