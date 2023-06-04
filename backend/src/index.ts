@@ -20,13 +20,12 @@ export const appRouter = t.router({
   ),
   // /trpc/getPost?input=slug(length is 20)
   getPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
-    const { input } = req;
-    return await get_post(slug.parse(input));
+    console.log(`recive:${req.input}`);
+    return await get_post(slug.parse(req.input));
   }),
-  echo: t.procedure.input(z.string()).query((req) => {
-    const { input } = req;
-    console.log(input);
-    return input;
+  getUser: t.procedure.input(z.string()).query((opts) => {
+    opts.input; // string
+    return { id: opts.input, name: "Bilbo" };
   }),
 });
 

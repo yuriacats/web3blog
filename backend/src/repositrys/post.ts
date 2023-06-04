@@ -6,7 +6,7 @@ import { get_author } from "./author";
 // DB validate diffinision
 const postRevision = z.object({
   title: z.string(),
-  author: z.number(),
+  author_id: z.number(),
   create_date: z.date(),
   post_data: z.string(),
   slug: z.string().length(20),
@@ -18,9 +18,9 @@ export const get_post = async (slug: Slug): Promise<Post> => {
   const postsQuery = postRevisions
     .parse(
       await conn.query(
-        ` SELECT title, author_id, create_date, post_data,slug 
+        ` SELECT title, author_id, post_revision.create_date, post_data,slug 
         FROM post_revision JOIN post ON post_revision.post_id=post.id 
-        WHERE slug= ? ORDER BY create_date DESC limit 1;
+        WHERE slug= ? ;
          `,
         [slug]
       )
@@ -28,7 +28,7 @@ export const get_post = async (slug: Slug): Promise<Post> => {
     // これsortとして成り立ってる？
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
   const target_post = postRevision.parse(postsQuery[0]);
-  const author_name = (await get_author(target_post.author)).name;
+  const author_name = (await get_author(target_post.author_id)).name;
 
   const result = {
     title: target_post.title,
