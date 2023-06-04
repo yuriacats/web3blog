@@ -3,19 +3,18 @@ import { Post, Slug } from "../interface";
 import { z } from "zod";
 import { get_author } from "./author";
 
-// DB validate diffinision
-const postRevision = z.object({
+const sluggedRevisionSchema = z.object({
   title: z.string(),
   author_id: z.number(),
   create_date: z.date(),
   post_data: z.string(),
   slug: z.string().length(20),
 });
-const postRevisions = z.array(postRevision).min(1);
+const sluggedRevisionsSchema = z.array(sluggedRevisionSchema).min(1);
 
 export const getPost = async (slug: Slug): Promise<Post> => {
   const conn = await connection();
-  const postsQuery = postRevisions
+  const postsQuery = sluggedRevisionsSchema
     .parse(
       await conn.query(
         ` SELECT title, author_id, post_revision.create_date, post_data,slug 
@@ -25,9 +24,8 @@ export const getPost = async (slug: Slug): Promise<Post> => {
         [slug]
       )
     )
-    // これsortとして成り立ってる？
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
-  const targetPost = postRevision.parse(postsQuery[0]);
+  const targetPost = sluggedRevisionSchema.parse(postsQuery[0]);
   const authorName = (await get_author(targetPost.author_id)).name;
   console.log(targetPost.create_date);
 
