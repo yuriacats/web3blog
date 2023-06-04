@@ -1,5 +1,5 @@
-import { connection } from "repository";
-import { Author, AuthorSchema } from "interface";
+import { connection } from "../repository";
+import { Author, AuthorSchema } from "../interface";
 import { z } from "zod";
 
 const AuthorListSchema = z.array(AuthorSchema).length(1);
