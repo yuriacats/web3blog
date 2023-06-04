@@ -3,7 +3,6 @@ import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { Author, Post, slug } from "./interface";
 import { getAuthor } from "./repositories/author";
-import { z } from "zod";
 const port = process.env["PORT"] ?? 8000;
 
 const app: express.Express = express();
