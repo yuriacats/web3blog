@@ -4,7 +4,7 @@ const sqlUser = process.env["SQL_USER"];
 const sqlPassword = process.env["SQL_PASSWORD"];
 const sqlHost = process.env["SQL_HOST"];
 
-export async function connection(): Promise<mysql.Connection> {
+export const connection = async (): Promise<mysql.Connection> => {
   const connection = await mysql.createConnection({
     host: sqlHost,
     user: sqlUser,
@@ -13,4 +13,4 @@ export async function connection(): Promise<mysql.Connection> {
     multipleStatements: true,
   });
   return connection;
-}
+};

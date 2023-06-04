@@ -19,7 +19,7 @@ export const appRouter = t.router({
   // /trpc/getPost?input=slug(length is 20)
   getPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
     console.log(`recive:${req.input}`);
-    return await getPost(slug.parse(req.input));
+    return await fetchPost(slug.parse(req.input));
   }),
   getUser: t.procedure.input(z.string()).query((opts) => {
     opts.input; // string
@@ -49,7 +49,7 @@ app.listen(port, () => {
 
 // 旧式のエンドポイントフロントの削除が終わり次第エンドポイントを削除する
 import * as mysql from "promise-mysql";
-import { getPost } from "./repositrys/post";
+import { fetchPost } from "./repositrys/post";
 const sqlUser = process.env["SQL_USER"];
 const sqlPassword = process.env["SQL_PASSWORD"];
 const sqlHost = process.env["SQL_HOST"];

@@ -1,4 +1,4 @@
-import { connection } from "../repository";
+import { connection } from "../repositories";
 import { Post, Slug } from "../interface";
 import { z } from "zod";
 import { getAuthor } from "./author";
@@ -12,7 +12,7 @@ const suluggedRevisionSchema = z.object({
 });
 const sluggedRevisionsSchema = z.array(suluggedRevisionSchema).min(1);
 
-export const getPost = async (slug: Slug): Promise<Post> => {
+export const fetchPost = async (slug: Slug): Promise<Post> => {
   const conn = await connection();
   const postsQuery = await conn.query(
     ` SELECT title, author_id, post_revision.create_date, post_data,slug 
