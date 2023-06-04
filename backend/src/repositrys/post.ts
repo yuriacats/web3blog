@@ -35,8 +35,8 @@ export const getPost = async (slug: Slug): Promise<Post> => {
   const result = {
     title: targetPost.title,
     author: authorName,
-    updateDate: new Date().getTime(),
-    createDate: new Date().getTime(),
+    updateDate: new Date(),
+    createDate: new Date(),
     content: targetPost.post_data,
   };
   return result;
