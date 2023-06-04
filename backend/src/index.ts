@@ -2,7 +2,7 @@ import express from "express";
 import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { Author, Post, slug } from "./interface";
-import { getAuthor } from "./repositrys/author";
+import { getAuthor } from "./repositories/author";
 import { z } from "zod";
 const port = process.env["PORT"] ?? 8000;
 

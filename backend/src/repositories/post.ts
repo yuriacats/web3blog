@@ -1,4 +1,4 @@
-import { connection } from "../repositories";
+import { connection } from "../repository";
 import { Post, Slug } from "../interface";
 import { z } from "zod";
 import { getAuthor } from "./author";
