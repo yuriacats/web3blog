@@ -1,8 +1,9 @@
 import express from "express";
 import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import { Author } from "./interface";
-import { get_author } from "./repository";
+import { Author, Post, slug } from "./interface";
+import { get_author } from "./repositrys/author";
+import { z } from "zod";
 const port = process.env["PORT"] ?? 8000;
 
 const app: express.Express = express();
@@ -13,8 +14,20 @@ type Context = inferAsyncReturnType<typeof createContext>;
 export const t = initTRPC.context<Context>().create();
 
 export const appRouter = t.router({
-  // ここで関数呼び出しして実行結果のRerutnをそのまま渡す。
-  getAuthor: t.procedure.query(async (): Promise<Author> => await get_author()),
+  // /trpc/getAuthor => return {result: {name: yuria, id: 1}}
+  getAuthor: t.procedure.query(
+    async (): Promise<Author> => await get_author(1)
+  ),
+  // /trpc/getPost?input=slug(length is 20)
+  getPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
+    const { input } = req;
+    return await get_post(slug.parse(input));
+  }),
+  echo: t.procedure.input(z.string()).query((req) => {
+    const { input } = req;
+    console.log(input);
+    return input;
+  }),
 });
 
 app.use(
@@ -39,6 +52,7 @@ app.listen(port, () => {
 
 // 旧式のエンドポイントフロントの削除が終わり次第エンドポイントを削除する
 import * as mysql from "promise-mysql";
+import { get_post } from "./repositrys/post";
 const sql_user = process.env["SQL_USER"];
 const sql_password = process.env["SQL_PASSWORD"];
 const sql_host = process.env["SQL_HOST"];
@@ -59,7 +73,7 @@ async function connection(): Promise<mysql.Connection> {
 interface post_raw {
   title: string;
   author: number;
-  create_date: number;
+  create_date: Date;
   post_data: string;
 }
 interface author {
