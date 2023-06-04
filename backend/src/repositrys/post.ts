@@ -10,7 +10,9 @@ const suluggedRevisionSchema = z.object({
   post_data: z.string(),
   slug: z.string().length(20),
 });
-const sluggedRevisionsSchema = z.array(suluggedRevisionSchema).min(1);
+const sluggedRevisionsSchema = z
+  .tuple([suluggedRevisionSchema])
+  .rest(suluggedRevisionSchema);
 
 export const fetchPost = async (slug: Slug): Promise<Post> => {
   const conn = await connection();
@@ -26,9 +28,6 @@ export const fetchPost = async (slug: Slug): Promise<Post> => {
     // これsortとして成り立ってる？
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
   const targetPost = sluggedRevisions[0];
-  if (targetPost === undefined) {
-    throw Error;
-  }
   const authorName = (await getAuthor(targetPost.author_id)).name;
   console.log(targetPost.create_date);
 
