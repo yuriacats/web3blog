@@ -49,7 +49,7 @@ app.listen(port, () => {
 
 // 旧式のエンドポイントフロントの削除が終わり次第エンドポイントを削除する
 import * as mysql from "promise-mysql";
-import { fetchPost } from "./repositrys/post";
+import { fetchPost } from "./repositories/post";
 const sqlUser = process.env["SQL_USER"];
 const sqlPassword = process.env["SQL_PASSWORD"];
 const sqlHost = process.env["SQL_HOST"];
