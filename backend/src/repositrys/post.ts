@@ -13,7 +13,7 @@ const postRevision = z.object({
 });
 const postRevisions = z.array(postRevision).min(1);
 
-export const get_post = async (slug: Slug): Promise<Post> => {
+export const getPost = async (slug: Slug): Promise<Post> => {
   const conn = await connection();
   const postsQuery = postRevisions
     .parse(
@@ -27,15 +27,16 @@ export const get_post = async (slug: Slug): Promise<Post> => {
     )
     // これsortとして成り立ってる？
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
-  const target_post = postRevision.parse(postsQuery[0]);
-  const author_name = (await get_author(target_post.author_id)).name;
+  const targetPost = postRevision.parse(postsQuery[0]);
+  const authorName = (await get_author(targetPost.author_id)).name;
+  console.log(targetPost.create_date);
 
   const result = {
-    title: target_post.title,
-    author: author_name,
-    update_date: new Date().getTime(),
-    create_date: new Date().getTime(),
-    content: target_post.post_data,
+    title: targetPost.title,
+    author: authorName,
+    updateDate: new Date().getTime(),
+    createDate: new Date().getTime(),
+    content: targetPost.post_data,
   };
   return result;
 };
