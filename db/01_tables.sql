@@ -1,8 +1,15 @@
 CREATE DATABASE webblog;
 SET CHARSET UTF8;
 USE webblog;
-CREATE TABLE tag_name(id int AUTO_INCREMENT PRIMARY KEY, name varchar(20) UNIQUE NOT NULL);
-CREATE TABLE post(id int AUTO_INCREMENT PRIMARY KEY, slug varchar(20) UNIQUE NOT NULL);
+CREATE TABLE tag_name(
+    id int AUTO_INCREMENT PRIMARY KEY,
+    name varchar(20) UNIQUE NOT NULL
+    );
+CREATE TABLE post(
+    id int AUTO_INCREMENT PRIMARY KEY,
+    slug varchar(20) UNIQUE NOT NULL,
+    create_date DATETIME DEFAULT CURRENT_TIMESTAMP
+    );
 CREATE TABLE tag_post(
         tag_id int NOT NULL, 
         post_id int NOT NULL,
