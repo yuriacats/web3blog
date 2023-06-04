@@ -2,7 +2,7 @@ import express from "express";
 import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { Author, Post, slug } from "./interface";
-import { get_author } from "./repositrys/author";
+import { getAuthor } from "./repositrys/author";
 import { z } from "zod";
 const port = process.env["PORT"] ?? 8000;
 
@@ -15,9 +15,7 @@ export const t = initTRPC.context<Context>().create();
 
 export const appRouter = t.router({
   // /trpc/getAuthor => return {result: {name: yuria, id: 1}}
-  getAuthor: t.procedure.query(
-    async (): Promise<Author> => await get_author(1)
-  ),
+  getAuthor: t.procedure.query(async (): Promise<Author> => await getAuthor(1)),
   // /trpc/getPost?input=slug(length is 20)
   getPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
     console.log(`recive:${req.input}`);

@@ -10,7 +10,7 @@ const AuthorListScema = z.array(
 );
 type AuthorList = z.infer<typeof AuthorListScema>;
 
-export const get_author_list = async (): Promise<AuthorList> => {
+export const getAuthorList = async (): Promise<AuthorList> => {
   const conn = await connection();
   const result = AuthorListScema.parse(
     await conn.query("SELECT * FROM author")
@@ -19,8 +19,11 @@ export const get_author_list = async (): Promise<AuthorList> => {
   return result;
 };
 
-export const get_author = async (id: number): Promise<Author> => {
-  const authorList = await get_author_list();
-  const result = authorList.find((n) => n.id == id);
+export const getAuthor = async (id: number): Promise<Author> => {
+  const conn = await connection();
+  const result = AuthorListScema.parse(
+    await conn.query("SELECT * FROM author WHERE id = ?", [id])
+  );
+  conn.end();
   return AuthorSchema.parse(result);
 };

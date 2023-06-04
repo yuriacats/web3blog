@@ -12,8 +12,8 @@ export type Author = z.infer<typeof AuthorSchema>;
 export const PostSchema = z.object({
   title: z.string().min(1),
   author: z.string().min(1),
-  updateDate: z.number(),
-  createDate: z.number(),
+  updateDate: z.coerce.date(),
+  createDate: z.coerce.date(),
   content: z.string(),
 });
 export type Post = z.infer<typeof PostSchema>;

@@ -1,7 +1,7 @@
 import { connection } from "../repository";
 import { Post, Slug } from "../interface";
 import { z } from "zod";
-import { get_author } from "./author";
+import { getAuthor } from "./author";
 
 const suluggedRevisionSchema = z.object({
   title: z.string(),
@@ -29,7 +29,7 @@ export const getPost = async (slug: Slug): Promise<Post> => {
   if (targetPost === undefined) {
     throw Error;
   }
-  const authorName = (await get_author(targetPost.author_id)).name;
+  const authorName = (await getAuthor(targetPost.author_id)).name;
   console.log(targetPost.create_date);
 
   const result = {
