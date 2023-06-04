@@ -27,20 +27,20 @@ export const fetchPost = async (slug: Slug): Promise<Post> => {
     .parse(postsQuery)
     // これsortとして成り立ってる？
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
-  const targetPost = nonEmptySluggedRevisions[0];
-  const authorName = (await getAuthor(targetPost.author_id)).name;
-  console.log(targetPost.create_date);
+  const SluggedRevision = nonEmptySluggedRevisions[0];
+  const authorName = (await getAuthor(SluggedRevision.author_id)).name;
+  console.log(SluggedRevision.create_date);
   const firstPost = nonEmptySluggedRevisions.slice(-1)[0];
   if (firstPost === undefined) {
     throw new Error();
   }
   const createPostDate = firstPost.create_date;
   const result = {
-    title: targetPost.title,
+    title: SluggedRevision.title,
     author: authorName,
-    updateDate: targetPost.create_date,
+    updateDate: SluggedRevision.create_date,
     createDate: createPostDate,
-    content: targetPost.post_data,
+    content: SluggedRevision.post_data,
   };
   return result;
 };
