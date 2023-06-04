@@ -8,7 +8,7 @@ CREATE TABLE tag_name(
 CREATE TABLE post(
     id int AUTO_INCREMENT PRIMARY KEY,
     slug varchar(20) UNIQUE NOT NULL,
-    create_date DATETIME DEFAULT CURRENT_TIMESTAMP
+    create_date DATEIME DEFAULT CURRENT_TIMESTAMP
     );
 CREATE TABLE tag_post(
         tag_id int NOT NULL, 

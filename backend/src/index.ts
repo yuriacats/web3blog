@@ -90,9 +90,9 @@ app.get(
   async (req: express.Request, res: express.Response): Promise<void> => {
     const conn = await connection();
     const postData: post_raw = await conn.query<post_raw>(`
-    SELECT title, author_id, create_date, post_data,slug 
+    SELECT title, author_id, post_revision.create_date, post_data,slug 
     FROM post_revision JOIN post ON post_revision.post_id=post.id 
-    WHERE slug='${req.params["id"]}' ORDER BY create_date DESC limit 1;
+    WHERE slug='${req.params["id"]}' ORDER BY post_revision.create_date DESC limit 1;
     `);
     conn.end();
     await res.json(postData);
