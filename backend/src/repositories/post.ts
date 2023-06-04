@@ -29,7 +29,6 @@ export const fetchPost = async (slug: Slug): Promise<Post> => {
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
   const SluggedRevision = nonEmptySluggedRevisions[0];
   const authorName = (await getAuthor(SluggedRevision.author_id)).name;
-  console.log(SluggedRevision.create_date);
   const firstPostRevision = nonEmptySluggedRevisions.slice(-1)[0];
   if (firstPostRevision === undefined) {
     throw new Error();

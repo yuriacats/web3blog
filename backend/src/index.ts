@@ -18,12 +18,7 @@ export const appRouter = t.router({
   getAuthor: t.procedure.query(async (): Promise<Author> => await getAuthor(1)),
   // /trpc/getPost?input=slug(length is 20)
   getPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
-    console.log(`recive:${req.input}`);
     return await fetchPost(slug.parse(req.input));
-  }),
-  getUser: t.procedure.input(z.string()).query((opts) => {
-    opts.input; // string
-    return { id: opts.input, name: "Bilbo" };
   }),
 });
 
