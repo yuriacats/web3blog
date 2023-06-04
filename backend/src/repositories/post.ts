@@ -25,7 +25,6 @@ export const fetchPost = async (slug: Slug): Promise<Post> => {
   );
   const nonEmptySluggedRevisions = nonEmptySluggedRevisionsSchema
     .parse(postsQuery)
-    // これsortとして成り立ってる？
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
   const SluggedRevision = nonEmptySluggedRevisions[0];
   const authorName = (await getAuthor(SluggedRevision.author_id)).name;
