@@ -3,16 +3,16 @@ import { Post, Slug } from "../interface";
 import { z } from "zod";
 import { getAuthor } from "./author";
 
-const suluggedRevisionSchema = z.object({
+const sluggedRevisionSchema = z.object({
   title: z.string(),
   author_id: z.number(),
   create_date: z.date(),
   post_data: z.string(),
   slug: z.string().length(20),
 });
-const sluggedRevisionsSchema = z
-  .tuple([suluggedRevisionSchema])
-  .rest(suluggedRevisionSchema);
+const nonEmptySluggedRevisionsSchema = z
+  .tuple([sluggedRevisionSchema])
+  .rest(sluggedRevisionSchema);
 
 export const fetchPost = async (slug: Slug): Promise<Post> => {
   const conn = await connection();
@@ -23,19 +23,23 @@ export const fetchPost = async (slug: Slug): Promise<Post> => {
          `,
     [slug]
   );
-  const sluggedRevisions = sluggedRevisionsSchema
+  const nonEmptySluggedRevisions = nonEmptySluggedRevisionsSchema
     .parse(postsQuery)
     // これsortとして成り立ってる？
     .sort((l, r) => (l.create_date > r.create_date ? 1 : -1));
-  const targetPost = sluggedRevisions[0];
+  const targetPost = nonEmptySluggedRevisions[0];
   const authorName = (await getAuthor(targetPost.author_id)).name;
   console.log(targetPost.create_date);
-
+  const firstPost = nonEmptySluggedRevisions.slice(-1)[0];
+  if (firstPost === undefined) {
+    throw new Error();
+  }
+  const createPostDate = firstPost.create_date;
   const result = {
     title: targetPost.title,
     author: authorName,
-    updateDate: new Date(),
-    createDate: new Date(),
+    updateDate: targetPost.create_date,
+    createDate: createPostDate,
     content: targetPost.post_data,
   };
   return result;
