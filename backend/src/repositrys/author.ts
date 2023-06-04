@@ -3,6 +3,7 @@ import { Author, AuthorSchema } from "../interface";
 import { z } from "zod";
 
 const AuthorListSchema = z.array(AuthorSchema).length(1);
+const AuthorSingletonSchema = z.tuple([AuthorSchema]);
 
 type AuthorList = z.infer<typeof AuthorListSchema>;
 
@@ -17,14 +18,11 @@ export const getAuthorList = async (): Promise<AuthorList> => {
 
 export const getAuthor = async (id: number): Promise<Author> => {
   const conn = await connection();
-  const getAuthorResult = await conn.query(
+  const queryResult = await conn.query(
     "SELECT id , name FROM author WHERE id = ?;",
     [id]
   );
   conn.end();
-  const result = AuthorListSchema.parse(getAuthorResult);
-  if (result[0] === undefined) {
-    throw Error;
-  }
-  return result[0];
+  const author = AuthorSingletonSchema.parse(queryResult)[0];
+  return author;
 };
