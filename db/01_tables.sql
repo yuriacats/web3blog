@@ -1,5 +1,7 @@
 CREATE DATABASE webblog;
 SET CHARSET UTF8;
+SET character_set_server=UTF8;
+SET character_set_database=UTF8;
 USE webblog;
 CREATE TABLE tag_name(
     id int AUTO_INCREMENT PRIMARY KEY,

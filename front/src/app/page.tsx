@@ -1,32 +1,15 @@
-import React, { Suspense } from "react";
+import Link from "next/link";
+import React from "react";
 export const dynamic = "force-dynamic";
-
-const Authors = (async () => {
-  const name = "yuria";
-
-  return (
-    <>
-      <ul>
-        <Auther name={name} />
-      </ul>
-    </>
-  );
-}) as unknown as React.FC;
-
-const Auther = ({ name }: { name: string }): React.ReactElement => {
-  return (
-    <>
-      <li>{name}</li>
-    </>
-  );
-};
 
 export default function Home(): React.ReactNode {
   return (
     <main>
-      <Suspense fallback={false}>
-        <Authors />
-      </Suspense>
+      <h1> yuria Top Page</h1>
+      <p>blog記事（見本）</p>
+      <Link href="posts/8557AF75A904DEEF4E00">
+        <a>Rustで一日でDiscordBotを作る(一部転載)</a>
+      </Link>
     </main>
   );
 }
