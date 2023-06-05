@@ -1,5 +1,10 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
+import { unified } from "unified";
+import remarkParse from "remark-parse";
+import remarkRehype from "remark-rehype";
+import rehypeReact from "rehype-react";
+import { createElement } from "react";
 import React, { Suspense } from "react";
 import { fetchPost } from "lib/fetchPost";
 const slugSchema = z.string().length(20);
@@ -10,6 +15,11 @@ const PageContents = async ({
 }): Promise<React.ReactElement> => {
   console.log(`PageContents slug ${slug}`);
   const post = await fetchPost(slug);
+  const HTMLcontent = await unified()
+    .use(remarkParse)
+    .use(remarkRehype)
+    .use(rehypeReact, { createElement })
+    .process(post.content);
 
   return (
     <>
@@ -17,6 +27,7 @@ const PageContents = async ({
       <p>
         {post.author}: {post.updateDate.toLocaleString()}
       </p>
+      <div>{HTMLcontent.result}</div>
     </>
   );
 };
