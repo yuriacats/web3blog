@@ -68,7 +68,7 @@ jobs:
           REPOSITORY: ${{ secrets.FRONTEND_REPO }}
           IMAGE_TAG: ${{ github.sha }}
         run: |
-          docker build --build-context backend=./backend --tag ${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} front
+          docker buildx build --build-context backend=./backend --tag ${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }} front
           docker push ${{ env.REPOSITORY }}:${{ env.IMAGE_TAG }}
           echo "image=${{env.REPOSITORY}}:${{env.IMAGE_TAG}}" >> $GITHUB_OUTPUT
       - name: Fill in the new image ID in the Amazon ECS task definition
