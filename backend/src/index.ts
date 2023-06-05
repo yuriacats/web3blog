@@ -20,8 +20,9 @@ export const appRouter = t.router({
   fetchAuthor: t.procedure.query(
     async (): Promise<Author> => await getAuthor(1)
   ),
-  // /trpc/getPost?input=slug(length is 20)
+  // /trpc/fetchPost?input=slug(length is 20)
   fetchPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
+    console.log(req.input);
     return await fetchPost(slug.parse(req.input));
   }),
 });
