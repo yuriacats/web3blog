@@ -3,6 +3,7 @@ import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
 import { Author, Post, slug } from "./interface";
 import { getAuthor } from "./repositories/author";
+import superjson from "superjson";
 const port = process.env["PORT"] ?? 8000;
 
 const app: express.Express = express();
@@ -10,13 +11,13 @@ const createContext = (
   _: trpcExpress.CreateExpressContextOptions
 ): object => ({});
 type Context = inferAsyncReturnType<typeof createContext>;
-export const t = initTRPC.context<Context>().create();
+export const t = initTRPC.context<Context>().create({
+  transformer: superjson,
+});
 
 export const appRouter = t.router({
-  // /trpc/getAuthor => return {result: {name: yuria, id: 1}}
-  getAuthor: t.procedure.query(async (): Promise<Author> => await getAuthor(1)),
-  // /trpc/getPost?input=slug(length is 20)
-  getPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
+  author: t.procedure.query(async (): Promise<Author> => await getAuthor(1)),
+  post: t.procedure.input(slug).query(async (req): Promise<Post> => {
     return await fetchPost(slug.parse(req.input));
   }),
 });
@@ -40,6 +41,7 @@ app.use(
 app.listen(port, () => {
   console.log(`start on port ${port}`);
 });
+export type AppRouter = typeof appRouter;
 
 // 旧式のエンドポイントフロントの削除が終わり次第エンドポイントを削除する
 import * as mysql from "promise-mysql";

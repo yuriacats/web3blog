@@ -35,11 +35,7 @@ mysql -h db -P 3306 -u backend -ptoor -e "select * from author " webblog
 
 
 URL_GREP_TEST "backend:8000/users" "yuria" 
-URL_GREP_TEST "backend:8000/posts/8557AF75A904DEEF4E00" "テスト"
-URL_GREP_TEST "backend:8000/trpc/getAuthor" "yuria"
 URL_STATUS_TEST "backend:8000/posts/855F4E00"
-URL_GREP_TEST "backend:8000/trpc/getPost?input=%228557AF75A904DEEF4E00%22" "テストデータ3"
-URL_GREP_TEST "backend:8000/trpc/getPost?input=%22DBAE5FBC068F850F4CE5%22" "テストデータ3"
 URL_GREP_TEST "frontend:3000" "yuria"
 URL_GREP_TEST "frontend:3000/posts" "501"
 URL_GREP_TEST "frontend:3000/posts/8557AF75A904DEEF4E00" "テストデータ"

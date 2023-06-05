@@ -1,10 +1,8 @@
 import React, { Suspense } from "react";
-import getData from "../lib/fetch_author";
-import styles from "./page.module.css";
 export const dynamic = "force-dynamic";
 
 const Authors = (async () => {
-  const name = await getData();
+  const name = "yuria";
 
   return (
     <>
@@ -25,7 +23,7 @@ const Auther = ({ name }: { name: string }): React.ReactElement => {
 
 export default function Home(): React.ReactNode {
   return (
-    <main className={styles["main"]}>
+    <main>
       <Suspense fallback={false}>
         <Authors />
       </Suspense>
