@@ -9,13 +9,13 @@ const PageContents = async ({
   slug: string;
 }): Promise<React.ReactElement> => {
   console.log(`PageContents slug ${slug}`);
-  const postdata = await fetchPost(slug);
+  const post = await fetchPost(slug);
 
   return (
     <>
-      <h1>{postdata.title}</h1>
+      <h1>{post.title}</h1>
       <p>
-        {postdata.author}: {postdata.updateDate.toLocaleString()}
+        {post.author}: {post.updateDate.toLocaleString()}
       </p>
     </>
   );
