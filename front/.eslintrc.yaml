@@ -16,3 +16,8 @@ rules:
   "@typescript-eslint/strict-boolean-expressions": error
   "@typescript-eslint/no-explicit-any": error
   "@typescript-eslint/switch-exhaustiveness-check": error
+    - error
+    - "argsIgnorePattern": "^_"
+  camelcase:
+    - error
+    - properties: "never"
