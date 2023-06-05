@@ -1,6 +1,28 @@
 import "server-only";
 import { z } from "zod";
+import superjson from "superjson";
 const APIURL = process.env["BLOGAPI"] ?? "http://localhost:8000";
+import { createTRPCProxyClient, httpBatchLink } from "@trpc/client";
+import type { AppRouter } from "backend/src";
+import type { Slug } from "./interface";
+import type { Post } from "backend/src/interface";
+
+const clientProxy = createTRPCProxyClient<AppRouter>({
+  links: [
+    httpBatchLink({
+      url: `${APIURL}/trpc`,
+      // You can pass any HTTP headers you wish here
+      async headers() {
+        return {};
+      },
+    }),
+  ],
+  transformer: superjson,
+});
+
+// postSchima.parse() すればいけるのだけど型以外のものを共有するのはまずいのではないか疑惑
+export const fetchPost = async (slug: Slug): Promise<Post> =>
+  await clientProxy.fetchPost.query(slug);
 
 interface author {
   name: string;

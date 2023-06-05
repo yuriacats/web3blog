@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import React, { Suspense } from "react";
-import { postData } from "lib/fetch_author";
+import { fetchPost } from "lib/fetch_author";
 const slugSchema = z.string().length(20);
 const PageContents = async ({
   slug,
@@ -9,13 +9,13 @@ const PageContents = async ({
   slug: string;
 }): Promise<React.ReactElement> => {
   console.log(`PageContents slug ${slug}`);
-  const postdata = await postData(slug);
+  const postdata = await fetchPost(slug);
 
   return (
     <>
       <h1>{postdata.title}</h1>
       <p>
-        {postdata.author}: {postdata.update_date.toString()}
+        {postdata.author}: {postdata.updateDate.toLocaleString()}
       </p>
     </>
   );
@@ -26,8 +26,8 @@ export default function Home({
 }: {
   params: { slug: string };
 }): React.ReactNode {
-  const slug_parse_result = slugSchema.safeParse(params.slug);
-  if (!slug_parse_result.success) {
+  const slugParseResult = slugSchema.safeParse(params.slug);
+  if (!slugParseResult.success) {
     return notFound();
   }
 
@@ -35,7 +35,7 @@ export default function Home({
     <main>
       <Suspense fallback={<></>}>
         {/* @ts-expect-error Async Server Component */}
-        <PageContents slug={slug_parse_result.data} />
+        <PageContents slug={slugParseResult.data} />
       </Suspense>
     </main>
   );
