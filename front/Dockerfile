@@ -18,7 +18,7 @@ WORKDIR /work
 ENV NODE_ENV=develop
 
 
-COPY --from=builder /work .
+COPY --from=builder /work/front .
 
 COPY ./next.config.js .
 COPY ./public ./public
