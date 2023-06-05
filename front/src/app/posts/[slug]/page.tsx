@@ -1,7 +1,7 @@
 import { notFound } from "next/navigation";
 import { z } from "zod";
 import React, { Suspense } from "react";
-import { fetchPost } from "lib/fetch_author";
+import { fetchPost } from "lib/fetchPost";
 const slugSchema = z.string().length(20);
 const PageContents = async ({
   slug,

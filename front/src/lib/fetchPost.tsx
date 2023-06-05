@@ -19,21 +19,4 @@ const clientProxy = createTRPCProxyClient<AppRouter>({
 });
 
 export const fetchPost = async (slug: Slug): Promise<Post> =>
-  await clientProxy.fetchPost.query(slug);
-
-// 依存フロントエンドが無くなり次第削除する
-interface author {
-  name: string;
-}
-export default async function getData(): Promise<string> {
-  const res = await fetch(`${APIURL}/users`, { cache: "no-store" }).catch(
-    () => null
-  );
-  if (res === null) {
-    return "hoge";
-  }
-  const AuthorList: [author] = await res.json();
-  console.log(AuthorList);
-  const authorname = AuthorList[0].name;
-  return authorname;
-}
+  await clientProxy.post.query(slug);

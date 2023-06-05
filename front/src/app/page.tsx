@@ -1,9 +1,8 @@
 import React, { Suspense } from "react";
-import getData from "../lib/fetch_author";
 export const dynamic = "force-dynamic";
 
 const Authors = (async () => {
-  const name = await getData();
+  const name = "yuria";
 
   return (
     <>

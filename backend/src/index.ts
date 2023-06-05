@@ -17,12 +17,9 @@ export const t = initTRPC.context<Context>().create({
 
 export const appRouter = t.router({
   // /trpc/getAuthor => return {result: {name: yuria, id: 1}}
-  fetchAuthor: t.procedure.query(
-    async (): Promise<Author> => await getAuthor(1)
-  ),
+  author: t.procedure.query(async (): Promise<Author> => await getAuthor(1)),
   // /trpc/fetchPost?input=slug(length is 20)
-  fetchPost: t.procedure.input(slug).query(async (req): Promise<Post> => {
-    console.log(req.input);
+  post: t.procedure.input(slug).query(async (req): Promise<Post> => {
     return await fetchPost(slug.parse(req.input));
   }),
 });
