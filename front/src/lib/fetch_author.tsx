@@ -61,15 +61,15 @@ export async function postData(slug: string): Promise<PostData> {
   console.log(`slug: ${slug}`);
   console.log(`acsess to:${APIURL}/posts/${slug}`);
   const res = await fetch(`${APIURL}/posts/${slug}`);
-  const res_json = await res.json();
-  const post_data = PostRawData.parse(res_json[0]);
+  const resJson = await res.json();
+  const postData = PostRawData.parse(resJson[0]);
   // zodのバリデートを行う
   // author_idから読み出す処理を作る。今回はyuriaで決め打ち
   return {
-    title: post_data.title,
-    slug: post_data.slug,
+    title: postData.title,
+    slug: postData.slug,
     author: "yuria",
     update_date: new Date(),
-    post_data: post_data.post_data,
+    post_data: postData.post_data,
   };
 }
