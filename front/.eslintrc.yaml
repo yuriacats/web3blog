@@ -5,6 +5,7 @@ extends:
   - "plugin:@typescript-eslint/recommended"
   - "plugin:@typescript-eslint/strict"
   - "next/core-web-vitals"
+  - "plugin:storybook/recommended"
   - "prettier"
 plugins:
   - "@typescript-eslint"
