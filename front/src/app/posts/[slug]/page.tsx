@@ -19,7 +19,9 @@ const PageContents = async ({
         author={post.author}
         date={post.updateDate}
       />
-      <MdToHtml md={post.content} />
+      <Suspense fallback={<></>}>
+        <MdToHtml md={post.content} />
+      </Suspense>
     </>
   );
 };
@@ -36,9 +38,7 @@ export default function Home({
 
   return (
     <main>
-      <Suspense fallback={<></>}>
-        <PageContents slug={slugParseResult.data} />
-      </Suspense>
+      <PageContents slug={slugParseResult.data} />
     </main>
   );
 }
