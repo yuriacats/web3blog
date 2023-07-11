@@ -11,7 +11,7 @@ const PageContents = async ({
   slug: string;
 }): Promise<React.ReactElement> => {
   const post = await fetchPost(slug);
-  console.log(`PostContents:${post.title}`);
+  console.log(`[PostContents]Page title:${post.title}`);
   return (
     <>
       <PageHead
@@ -29,7 +29,7 @@ export default function Home({
 }: {
   params: { slug: string };
 }): React.ReactNode {
-  console.log(`Home:${params.slug}`);
+  console.log(`[Home]slug:${params.slug}`);
   const slugParseResult = slugSchema.safeParse(params.slug);
   if (!slugParseResult.success) {
     return notFound();
