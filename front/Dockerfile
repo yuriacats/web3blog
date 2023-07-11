@@ -15,7 +15,7 @@ RUN cd front && npm run build
 FROM node:20-alpine3.16 as runnner
 WORKDIR /work
 
-ENV NODE_ENV=develop
+ENV NODE_ENV=production
 
 
 COPY --from=builder /work/front .

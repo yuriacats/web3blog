@@ -18,5 +18,7 @@ const clientProxy = createTRPCProxyClient<AppRouter>({
   transformer: superjson,
 });
 
-export const fetchPost = async (slug: Slug): Promise<Post> =>
-  await clientProxy.post.query(slug);
+export const fetchPost = async (slug: Slug): Promise<Post> => {
+  console.log(`[fetchPost]slug:${slug}`);
+  return await clientProxy.post.query(slug);
+};
