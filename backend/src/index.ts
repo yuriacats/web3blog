@@ -1,7 +1,7 @@
 import express from "express";
 import { inferAsyncReturnType, initTRPC } from "@trpc/server";
 import * as trpcExpress from "@trpc/server/adapters/express";
-import { Author, Post, slug } from "./interface";
+import { Author, Post, Slug, slug, WhitePostSchema } from "./interface";
 import { getAuthor } from "./repositories/author";
 import superjson from "superjson";
 const port = process.env["PORT"] ?? 8000;
@@ -20,6 +20,11 @@ export const appRouter = t.router({
   post: t.procedure.input(slug).query(async (req): Promise<Post> => {
     return await fetchPost(slug.parse(req.input));
   }),
+  add_post: t.procedure
+    .input(WhitePostSchema)
+    .mutation(async (req): Promise<Slug> => {
+      return await sendPost(req.input);
+    }),
 });
 
 app.use(
@@ -45,7 +50,7 @@ export type AppRouter = typeof appRouter;
 
 // 旧式のエンドポイントフロントの削除が終わり次第エンドポイントを削除する
 import * as mysql from "promise-mysql";
-import { fetchPost } from "./repositories/post";
+import { fetchPost, sendPost } from "./repositories/post";
 const sqlUser = process.env["SQL_USER"];
 const sqlPassword = process.env["SQL_PASSWORD"];
 const sqlHost = process.env["SQL_HOST"];

@@ -1,7 +1,8 @@
 import { connection } from "../repository";
-import { Post, Slug } from "../interface";
+import { Post, Slug, WhitePost } from "../interface";
 import { z } from "zod";
 import { getAuthor } from "./author";
+import { generateNewSlag } from "../util";
 
 const sluggedRevisionSchema = z.object({
   title: z.string(),
@@ -41,4 +42,15 @@ export const fetchPost = async (slug: Slug): Promise<Post> => {
     content: SluggedRevision.post_data,
   };
   return result;
+};
+
+export const sendPost = async (req: WhitePost): Promise<Slug> => {
+  const slug = await getPostName(req.title);
+  // conn.queryが失敗した時のリトライ処理をやる
+  return slug;
+};
+
+const getPostName = async (slug: string): Promise<Slug> => {
+  const slugCandidate = generateNewSlag(slug);
+  return slugCandidate;
 };
