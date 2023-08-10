@@ -5,7 +5,8 @@ import { Author, Post, Slug, slug, WhitePostSchema } from "./interface";
 import { getAuthor } from "./repositories/author";
 import superjson from "superjson";
 const port = process.env["PORT"] ?? 8000;
-
+import { generateNewSlug } from "./utils/slug";
+export const generator = generateNewSlug(Number(Date.now()));
 const app: express.Express = express();
 const createContext = (
   _: trpcExpress.CreateExpressContextOptions

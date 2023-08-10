@@ -4,7 +4,8 @@ COPY package*.json ./
 
 RUN npm install
 COPY src ./src
-COPY tsconfig.json ./
+COPY tsconfig.build.json ./tsconfig.json
+COPY babel.config.json ./
 RUN npm run build
 
 ###
