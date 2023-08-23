@@ -19,6 +19,9 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ap-northeast-1
       - uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: "true"
+          registry-type: public
         id: login-ecr
       - uses: actions/checkout@v3
       - name: build and push docker image to ecr
@@ -45,6 +48,9 @@ jobs:
           aws-region: ap-northeast-1
       - uses: actions/checkout@v3
       - uses: aws-actions/amazon-ecr-login@v1
+        with:
+          mask-password: "true"
+          registry-type: public
         id: login-ecr
       - name: build and push docker image to ecr
         id: build-image
