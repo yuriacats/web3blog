@@ -44,7 +44,7 @@
     "zod": "^3.22.0-canary.20230522T011705"
   },
   "devDependencies": {
-    "@storybook/addon-essentials": "^7.0.18",
+    "@storybook/addon-essentials": "^7.5.0",
     "@storybook/addon-interactions": "^7.0.18",
     "@storybook/addon-links": "^7.0.18",
     "@storybook/blocks": "^7.0.18",
@@ -55,6 +55,6 @@
     "eslint-config-prettier": "^8.8.0",
     "eslint-plugin-storybook": "^0.6.12",
     "prettier": "2.8.8",
-    "storybook": "^7.0.18"
+    "storybook": "^7.5.0"
   }
 }
