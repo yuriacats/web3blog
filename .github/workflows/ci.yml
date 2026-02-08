@@ -23,18 +23,30 @@ jobs:
     runs-on: ubuntu-latest
     steps:
     - uses: actions/checkout@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+    - name: Enable pnpm
+      run: corepack enable pnpm
     - name: backend lint
-      run:  npm install && npm run lint
+      run:  pnpm install && pnpm run lint
     - name: backend format
-      run: npm run format_check 
+      run: pnpm run format_check 
   lint_frontend:
     runs-on: ubuntu-latest
     defaults:
       run:
-        working-directory: front 
+        working-directory: front
     steps:
     - uses: actions/checkout@v3
+    - name: Setup Node.js
+      uses: actions/setup-node@v3
+      with:
+        node-version: '22'
+    - name: Enable pnpm
+      run: corepack enable pnpm
     - name: frontend lint
-      run:  npm install && npm run lint
+      run:  pnpm install && pnpm run lint
     - name: frontend format
-      run: npm run format_check 
+      run: pnpm run format_check 

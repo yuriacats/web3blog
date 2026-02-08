@@ -1,18 +1,20 @@
 # syntax=docker/dockerfile:1
 
-FROM node:20-alpine3.16 as builder
+FROM node:22-alpine as builder
+RUN corepack enable pnpm
 WORKDIR /work
-COPY ./package*.json ./front/
-RUN cd front && npm install 
-COPY --from=backend ./package*.json ./backend/
+COPY ./package.json ./pnpm-lock.yaml* ./front/
+COPY --from=backend ./package.json ./pnpm-lock.yaml* ./backend/
 COPY --from=backend src ./backend/src
-RUN cd backend && npm install
+RUN cd backend && pnpm install --frozen-lockfile
+RUN cd front && pnpm install --frozen-lockfile
 COPY ./src ./front/src
 COPY ./tsconfig.json ./front/
-RUN cd front && npm run build
+RUN cd front && pnpm run build
 
 ###
-FROM node:20-alpine3.16 as runnner
+FROM node:22-alpine as runnner
+RUN corepack enable pnpm
 WORKDIR /work
 
 ENV NODE_ENV=production
