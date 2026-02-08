@@ -10,12 +10,12 @@ const clientProxy = createTRPCProxyClient<AppRouter>({
   links: [
     httpBatchLink({
       url: `${APIURL}/trpc`,
+      transformer: superjson,
       async headers() {
         return {};
       },
     }),
   ],
-  transformer: superjson,
 });
 
 export const fetchPost = async (slug: Slug): Promise<Post> => {

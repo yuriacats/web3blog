@@ -32,11 +32,11 @@
   },
   "dependencies": {
     "@babel/preset-env": "^7.22.9",
-    "@trpc/server": "^10.29.0",
+    "@trpc/server": "^11.9.0",
     "express": "^4.18.2",
     "promise-mysql": "^5.2.0",
-    "superjson": "^1.12.3",
-    "zod": "^3.21.4"
+    "superjson": "^2.2.6",
+    "zod": "^4.3.6"
   },
   "exports": {
     "./*": "./src/*"
