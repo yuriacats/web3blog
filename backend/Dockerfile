@@ -5,7 +5,7 @@ COPY package.json pnpm-lock.yaml* ./
 
 RUN pnpm install --frozen-lockfile
 COPY src ./src
-COPY tsconfig.build.json ./tsconfig.json
+COPY tsconfig.build.json ./
 COPY babel.config.json ./
 RUN pnpm run build
 
