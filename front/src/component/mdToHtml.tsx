@@ -2,7 +2,7 @@ import { unified } from "unified";
 import remarkParse from "remark-parse";
 import remarkRehype from "remark-rehype";
 import rehypeReact from "rehype-react";
-import React, { createElement } from "react";
+import React, { Fragment, createElement } from "react";
 
 export const MdToHtml = async ({
   md,
@@ -12,7 +12,7 @@ export const MdToHtml = async ({
   const HTMLcontent = await unified()
     .use(remarkParse)
     .use(remarkRehype)
-    .use(rehypeReact, { createElement })
+    .use(rehypeReact, { createElement, Fragment })
     .process(md);
   return <>{HTMLcontent.result}</>;
 };

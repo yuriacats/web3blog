@@ -1,21 +1,23 @@
-FROM node:20-alpine3.16 as builder
+FROM node:22-alpine as builder
+RUN corepack enable pnpm
 WORKDIR /work
-COPY package*.json ./
+COPY package.json pnpm-lock.yaml* ./
 
-RUN npm install
+RUN pnpm install --frozen-lockfile
 COPY src ./src
-COPY tsconfig.build.json ./tsconfig.json
+COPY tsconfig.build.json ./
 COPY babel.config.json ./
-RUN npm run build
+RUN pnpm run build
 
 ###
-FROM node:20-alpine3.16 as runnner
+FROM node:22-alpine as runnner
+RUN corepack enable pnpm
 WORKDIR /work
 
 ENV NODE_ENV=production
 
-COPY package*.json ./
-RUN npm install --omit=dev && npm cache clean --force
+COPY package.json pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile --prod && pnpm store prune
 
 COPY --from=builder /work/dist ./dist
 

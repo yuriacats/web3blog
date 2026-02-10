@@ -24,13 +24,14 @@ const PageContents = async ({
   );
 };
 
-export default function Home({
+export default async function Home({
   params,
 }: {
-  params: { slug: string };
-}): React.ReactNode {
-  console.log(`[Home]slug:${params.slug}`);
-  const slugParseResult = slugSchema.safeParse(params.slug);
+  params: Promise<{ slug: string }>;
+}): Promise<React.ReactNode> {
+  const resolvedParams = await params;
+  console.log(`[Home]slug:${resolvedParams.slug}`);
+  const slugParseResult = slugSchema.safeParse(resolvedParams.slug);
   if (!slugParseResult.success) {
     return notFound();
   }
