@@ -1,67 +1,67 @@
-# Quick Start: Blog Posts List Page
+# クイックスタート: ブログ記事一覧ページ
 
-**Feature**: 002-posts-list-page
-**Purpose**: How to run and test the posts list feature locally
+**機能**: 002-posts-list-page
+**目的**: 記事一覧機能をローカルで実行してテストする方法
 
-## Prerequisites
+## 前提条件
 
-- Docker and Docker Compose installed
-- Node.js 22.x and pnpm installed (for local development)
-- Project dependencies installed (`pnpm install` in both `front/` and `backend/`)
+- Docker と Docker Compose がインストールされている
+- Node.js 22.x と pnpm がインストールされている（ローカル開発用）
+- プロジェクトの依存関係がインストールされている（`front/` と `backend/` の両方で `pnpm install`）
 
-## Running the Feature
+## 機能の実行
 
-### 1. Start the Full Stack
+### 1. フルスタックを起動
 
 ```bash
-# From project root
+# プロジェクトルートから
 docker-compose up
 ```
 
-**Services Started**:
-- `db`: MySQL database (port 3306)
-- `backend`: Express + tRPC API (port 8000)
-- `frontend`: Next.js application (port 3000)
+**起動されるサービス**:
+- `db`: MySQL データベース（ポート 3306）
+- `backend`: Express + tRPC API（ポート 8000）
+- `frontend`: Next.js アプリケーション（ポート 3000）
 
-### 2. Verify Database is Ready
+### 2. データベースの準備を確認
 
 ```bash
-# Check database has test data
+# データベースにテストデータがあるか確認
 docker-compose exec db mysql -u backend -ptoor -e "USE webblog; SELECT COUNT(*) FROM post;"
 ```
 
-**Expected Output**: Should show at least 1 post
+**期待される出力**: 少なくとも1つの記事が表示される
 
-### 3. Access the Posts List Page
+### 3. 記事一覧ページにアクセス
 
-Open in browser: http://localhost:3000/posts
+ブラウザで開く: http://localhost:3000/posts
 
-**Expected Behavior**:
-- See a list of blog posts
-- Each post shows: title (clickable link), tags
-- Posts ordered newest first
-- If no posts: "No posts available yet" message
+**期待される動作**:
+- ブログ記事の一覧が表示される
+- 各記事には次が表示される: タイトル（クリック可能なリンク）、タグ
+- 記事は新しい順に並んでいる
+- 記事がない場合: 「まだ記事がありません」のメッセージ
 
 ---
 
-## Testing the tRPC Endpoint Directly
+## tRPC エンドポイントを直接テスト
 
-### Backend API Test
+### バックエンド API テスト
 
 ```bash
-# Test the postsList endpoint
+# postsList エンドポイントをテスト
 curl -X GET http://localhost:8000/trpc/postsList \
   -H "Content-Type: application/json"
 ```
 
-**Expected Response**:
+**期待されるレスポンス**:
 ```json
 {
   "result": {
     "data": [
       {
         "slug": "ABC123XYZ456DEFGH789",
-        "title": "Sample Blog Post",
+        "title": "サンプルブログ記事",
         "tags": [
           { "id": 1, "name": "tech" },
           { "id": 2, "name": "tutorial" }
@@ -75,162 +75,162 @@ curl -X GET http://localhost:8000/trpc/postsList \
 
 ---
 
-## Development Workflow
+## 開発ワークフロー
 
-### Backend Development
+### バックエンド開発
 
 ```bash
-# Terminal 1: Run backend in dev mode
+# ターミナル1: バックエンドを開発モードで実行
 cd backend
 pnpm run dev
 ```
 
-**Backend runs on**: http://localhost:8000
-**Hot Reload**: Enabled via ts-node
+**バックエンドの実行先**: http://localhost:8000
+**ホットリロード**: ts-node 経由で有効
 
-### Frontend Development
+### フロントエンド開発
 
 ```bash
-# Terminal 2: Run frontend in dev mode
+# ターミナル2: フロントエンドを開発モードで実行
 cd front
 pnpm run dev
 ```
 
-**Frontend runs on**: http://localhost:4000 (dev mode)
-**Hot Reload**: Enabled via Next.js
+**フロントエンドの実行先**: http://localhost:4000（開発モード）
+**ホットリロード**: Next.js 経由で有効
 
 ---
 
-## Running Tests
+## テストの実行
 
-### Backend Unit Tests
+### バックエンドユニットテスト
 
 ```bash
 cd backend
 pnpm test
 ```
 
-**Tests for this feature**:
-- `test/repositories/post.test.ts`: Tests for `fetchAllPosts()` function
+**この機能のテスト**:
+- `test/repositories/post.test.ts`: `fetchAllPosts()` 関数のテスト
 
-### Frontend Manual Testing
+### フロントエンド手動テスト
 
-1. Navigate to http://localhost:3000/posts
-2. Verify posts list displays
-3. Click on a post title → should navigate to `/posts/[slug]`
-4. Verify tags are displayed
-5. Check empty state (temporarily clear database)
+1. http://localhost:3000/posts にアクセス
+2. 記事一覧が表示されることを確認
+3. 記事タイトルをクリック → `/posts/[slug]` に遷移することを確認
+4. タグが表示されることを確認
+5. 空の状態を確認（一時的にデータベースをクリア）
 
 ---
 
-## Verifying Database Connectivity
+## データベース接続の確認
 
-### Check MySQL Connection
+### MySQL 接続の確認
 
 ```bash
-# Connect to database
+# データベースに接続
 docker-compose exec db mysql -u backend -ptoor webblog
 ```
 
 ```sql
--- Verify posts table
+-- post テーブルを確認
 SELECT * FROM post;
 
--- Verify post_revision table (check public column)
+-- post_revision テーブルを確認（public カラムをチェック）
 SELECT * FROM post_revision;
 
--- Verify tags
+-- タグを確認
 SELECT * FROM tag_name;
 
--- Verify post-tag relationships
+-- 記事-タグの関係を確認
 SELECT * FROM tag_post;
 ```
 
-### Check Backend Database Connection
+### バックエンドのデータベース接続を確認
 
 ```bash
-# Check backend logs for database connection
+# バックエンドログでデータベース接続を確認
 docker-compose logs backend | grep -i mysql
 ```
 
-**Expected**: No connection errors
+**期待される結果**: 接続エラーがない
 
 ---
 
-## Common Issues & Solutions
+## よくある問題と解決策
 
-### Issue: "No posts available"
+### 問題: 「記事がありません」
 
-**Cause**: Database might be empty or all posts are drafts
+**原因**: データベースが空か、すべての記事が下書き
 
-**Solution**:
+**解決策**:
 ```bash
-# Check if posts exist
+# 記事が存在するか確認
 docker-compose exec db mysql -u backend -ptoor -e "USE webblog; SELECT * FROM post;"
 
-# Check if revisions are public
+# リビジョンが公開されているか確認
 docker-compose exec db mysql -u backend -ptoor -e "USE webblog; SELECT post_id, public FROM post_revision;"
 
-# Insert test data if needed
+# 必要に応じてテストデータを挿入
 docker-compose exec db mysql -u backend -ptoor webblog < db/10_testData.sql
 ```
 
-### Issue: "Cannot connect to database"
+### 問題: 「データベースに接続できません」
 
-**Cause**: Database container not running or wrong credentials
+**原因**: データベースコンテナが実行されていないか、認証情報が間違っている
 
-**Solution**:
+**解決策**:
 ```bash
-# Restart database
+# データベースを再起動
 docker-compose restart db
 
-# Check database logs
+# データベースログを確認
 docker-compose logs db
 
-# Verify environment variables in backend
+# バックエンドの環境変数を確認
 docker-compose exec backend env | grep SQL
 ```
 
-### Issue: TypeScript errors
+### 問題: TypeScript エラー
 
-**Cause**: Type definitions not matching
+**原因**: 型定義が一致していない
 
-**Solution**:
+**解決策**:
 ```bash
-# Rebuild backend
+# バックエンドをリビルド
 cd backend
 pnpm run build
 
-# Rebuild frontend
+# フロントエンドをリビルド
 cd front
 pnpm run build
 ```
 
 ---
 
-## Feature Verification Checklist
+## 機能検証チェックリスト
 
-- [ ] Docker Compose starts all services without errors
-- [ ] Database contains at least one public post
-- [ ] Backend responds to `http://localhost:8000/trpc/postsList`
-- [ ] Frontend displays posts at `http://localhost:3000/posts`
-- [ ] Post titles are clickable links
-- [ ] Tags are displayed for each post
-- [ ] Posts are ordered newest first
-- [ ] Empty state works (when no posts)
-- [ ] TypeScript compiles without errors
-- [ ] Backend tests pass
-
----
-
-## Next Steps
-
-After verification:
-1. Run `/speckit.tasks` to generate implementation tasks
-2. Follow tasks to implement the feature
-3. Run tests after each major change
-4. Commit changes incrementally
+- [ ] Docker Compose がエラーなしですべてのサービスを起動
+- [ ] データベースに少なくとも1つの公開記事が含まれている
+- [ ] バックエンドが `http://localhost:8000/trpc/postsList` に応答
+- [ ] フロントエンドが `http://localhost:3000/posts` に記事を表示
+- [ ] 記事タイトルがクリック可能なリンク
+- [ ] 各記事にタグが表示される
+- [ ] 記事が新しい順に並んでいる
+- [ ] 空の状態が動作する（記事がない場合）
+- [ ] TypeScript がエラーなしでコンパイル
+- [ ] バックエンドテストが合格
 
 ---
 
-**Last Updated**: 2026-02-10
+## 次のステップ
+
+検証後:
+1. `/speckit.tasks` を実行して実装タスクを生成
+2. タスクに従って機能を実装
+3. 主要な変更後にテストを実行
+4. 変更を段階的にコミット
+
+---
+
+**最終更新**: 2026-02-10

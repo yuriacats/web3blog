@@ -1,45 +1,45 @@
-# Research: Blog Posts List Page
+# 研究: ブログ記事一覧ページ
 
-**Feature**: 002-posts-list-page
-**Date**: 2026-02-10
-**Purpose**: Resolve technical unknowns and establish implementation patterns
+**機能**: 002-posts-list-page
+**日付**: 2026-02-10
+**目的**: 技術的な未知数を解決し、実装パターンを確立する
 
-## Research Topics
+## 研究トピック
 
-### 1. Database Query Pattern for Posts with Tags
+### 1. タグ付き記事のデータベースクエリパターン
 
-**Question**: How should we efficiently fetch posts with their associated tags from the database?
+**質問**: データベースから記事とその関連タグを効率的に取得する方法は？
 
-**Options Evaluated**:
+**評価したオプション**:
 
-1. **LEFT JOIN with GROUP_CONCAT**
-   - Single query joining post, post_revision, tag_post, and tag_name
-   - Use GROUP_CONCAT to aggregate tags into a single row per post
-   - Parse comma-separated tags in application code
+1. **GROUP_CONCAT を使用した LEFT JOIN**
+   - post, post_revision, tag_post, tag_name を結合する単一クエリ
+   - GROUP_CONCAT を使用してタグを記事ごとに1行に集約
+   - アプリケーションコードでカンマ区切りのタグを解析
 
-2. **Separate Queries** (N+1 pattern)
-   - Query 1: Fetch all posts
-   - Query 2-N: For each post, fetch its tags
-   - Simple but inefficient for many posts
+2. **個別クエリ**（N+1 パターン）
+   - クエリ 1: すべての記事を取得
+   - クエリ 2-N: 各記事ごとにタグを取得
+   - シンプルだが多数の記事には非効率
 
-3. **Two-Query Pattern**
-   - Query 1: Fetch all posts
-   - Query 2: Fetch all tags for those posts (IN clause)
-   - Join in application code
-   - Balance between efficiency and simplicity
+3. **2クエリパターン**
+   - クエリ 1: すべての記事を取得
+   - クエリ 2: それらの記事のすべてのタグを取得（IN 句）
+   - アプリケーションコードで結合
+   - 効率性とシンプルさのバランス
 
-**Decision**: **Two-Query Pattern**
+**決定**: **2クエリパターン**
 
-**Rationale**:
-- Avoids N+1 query problem
-- Simpler application code than GROUP_CONCAT parsing
-- Better type safety with Zod validation
-- Easier to test and maintain
-- Performance acceptable for <1000 posts (pagination will be added later)
+**根拠**:
+- N+1 クエリ問題を回避
+- GROUP_CONCAT 解析よりもシンプルなアプリケーションコード
+- Zod 検証による型安全性の向上
+- テストとメンテナンスが容易
+- <1000 記事ではパフォーマンスが許容可能（ページネーションは後で追加）
 
-**Implementation**:
+**実装**:
 ```sql
--- Query 1: Fetch all public posts
+-- クエリ 1: すべての公開記事を取得
 SELECT
   post.id, post.slug, post.create_date,
   post_revision.title
@@ -48,7 +48,7 @@ JOIN post_revision ON post.id = post_revision.post_id
 WHERE post_revision.public = 1
 ORDER BY post.create_date DESC;
 
--- Query 2: Fetch all tags for those posts
+-- クエリ 2: それらの記事のすべてのタグを取得
 SELECT
   tag_post.post_id,
   tag_name.id,
@@ -58,28 +58,28 @@ JOIN tag_name ON tag_post.tag_id = tag_name.id
 WHERE tag_post.post_id IN (?, ?, ...);
 ```
 
-**Alternatives Considered**:
-- LEFT JOIN with GROUP_CONCAT: Rejected because GROUP_CONCAT parsing is fragile and MySQL-specific
-- N+1 separate queries: Rejected due to performance concerns
+**検討した代替案**:
+- GROUP_CONCAT を使用した LEFT JOIN: GROUP_CONCAT 解析が脆弱で MySQL 固有であるため却下
+- N+1 個別クエリ: パフォーマンスの懸念のため却下
 
 ---
 
-### 2. tRPC Endpoint Design for List Operations
+### 2. リスト操作のための tRPC エンドポイント設計
 
-**Question**: What are best practices for list endpoints in tRPC 11?
+**質問**: tRPC 11 におけるリストエンドポイントのベストプラクティスは？
 
-**Research Findings**:
+**研究結果**:
 
-**tRPC 11 Best Practices**:
-1. Use `.query()` for read operations (not `.mutation()`)
-2. Return arrays directly for simple lists
-3. Use Zod schemas for output validation
-4. Consider pagination parameters (optional for MVP, required for #32)
-5. Use superjson transformer for Date serialization (already configured)
+**tRPC 11 ベストプラクティス**:
+1. 読み取り操作には `.query()` を使用（`.mutation()` ではない）
+2. シンプルなリストには配列を直接返す
+3. 出力検証には Zod スキーマを使用
+4. ページネーションパラメータを検討（MVP ではオプション、#32 では必須）
+5. Date シリアライゼーションには superjson トランスフォーマーを使用（既に設定済み）
 
-**Decision**: **Simple query procedure returning typed array**
+**決定**: **型付き配列を返すシンプルなクエリプロシージャ**
 
-**Endpoint Signature**:
+**エンドポイントシグネチャ**:
 ```typescript
 postsList: t.procedure
   .query(async (): Promise<PostListItem[]> => {
@@ -87,32 +87,32 @@ postsList: t.procedure
   })
 ```
 
-**Rationale**:
-- Follows tRPC conventions for list operations
-- No input needed for simple "get all" operation
-- Type safety maintained through TypeScript and Zod
-- Easy to extend with pagination parameters later
+**根拠**:
+- リスト操作の tRPC 規約に従う
+- シンプルな「すべて取得」操作には入力不要
+- TypeScript と Zod による型安全性の維持
+- 後でページネーションパラメータで拡張しやすい
 
-**Alternatives Considered**:
-- Mutation-based endpoint: Rejected (mutations are for write operations)
-- Object wrapper (e.g., `{ posts: PostListItem[] }`): Deferred until pagination is added
+**検討した代替案**:
+- ミューテーションベースのエンドポイント: 却下（ミューテーションは書き込み操作用）
+- オブジェクトラッパー（例: `{ posts: PostListItem[] }`）: ページネーション追加まで延期
 
 ---
 
-### 3. React Empty State Handling Patterns
+### 3. React の空の状態処理パターン
 
-**Question**: What's the best pattern for handling empty state in Next.js 15 App Router?
+**質問**: Next.js 15 App Router で空の状態を処理する最適なパターンは？
 
-**Research Findings**:
+**研究結果**:
 
-**Next.js 15 + React 19 Patterns**:
-1. Conditional rendering in Server/Client Components
-2. Early return for empty state
-3. Graceful error boundaries for loading failures
+**Next.js 15 + React 19 パターン**:
+1. Server/Client Components での条件付きレンダリング
+2. 空の状態のための早期リターン
+3. ロード失敗のための適切なエラーバウンダリ
 
-**Decision**: **Conditional rendering with early return**
+**決定**: **早期リターン付き条件付きレンダリング**
 
-**Pattern**:
+**パターン**:
 ```typescript
 export default async function PostsPage() {
   const posts = await trpc.postsList.query();
@@ -120,20 +120,20 @@ export default async function PostsPage() {
   if (posts.length === 0) {
     return (
       <main>
-        <h1>Posts</h1>
-        <p>No posts available yet.</p>
+        <h1>投稿</h1>
+        <p>まだ投稿がありません。</p>
       </main>
     );
   }
 
   return (
     <main>
-      <h1>Posts</h1>
+      <h1>投稿</h1>
       <ul>
         {posts.map(post => (
           <li key={post.slug}>
             <Link href={`/posts/${post.slug}`}>{post.title}</Link>
-            {/* tags rendering */}
+            {/* タグのレンダリング */}
           </li>
         ))}
       </ul>
@@ -142,34 +142,34 @@ export default async function PostsPage() {
 }
 ```
 
-**Rationale**:
-- Simple and readable
-- Server Component can fetch data directly (no client-side loading state needed)
-- Aligns with Next.js 15 App Router conventions
-- Easy to style and maintain
+**根拠**:
+- シンプルで読みやすい
+- Server Component はデータを直接取得可能（クライアントサイドのロード状態不要）
+- Next.js 15 App Router の規約に準拠
+- スタイリングとメンテナンスが容易
 
-**Alternatives Considered**:
-- Client Component with loading state: Unnecessary complexity for static list
-- Separate Empty component: Over-engineering for simple message
+**検討した代替案**:
+- ロード状態を持つ Client Component: 静的リストには不必要な複雑さ
+- 別の Empty コンポーネント: シンプルなメッセージには過剰設計
 
 ---
 
-## Additional Research
+## 追加研究
 
-### 4. Handling Posts with Multiple Revisions
+### 4. 複数リビジョンを持つ記事の処理
 
-**Context**: Database has `post_revision` table (multiple revisions per post)
+**コンテキスト**: データベースには `post_revision` テーブルがある（記事ごとに複数のリビジョン）
 
-**Decision**: **Fetch only the latest public revision per post**
+**決定**: **記事ごとに最新の公開リビジョンのみを取得**
 
-**Implementation Strategy**:
-- Join with subquery to get latest revision per post
-- Or use `MAX(post_revision.id)` grouped by `post_id`
-- Filter `public = 1` to exclude drafts
+**実装戦略**:
+- サブクエリで記事ごとに最新のリビジョンを取得するために JOIN
+- または `post_id` でグループ化された `MAX(post_revision.id)` を使用
+- 下書きを除外するために `public = 1` でフィルタリング
 
-**Query Refinement**:
+**クエリの改良**:
 ```sql
--- Get latest public revision per post
+-- 記事ごとに最新の公開リビジョンを取得
 SELECT
   post.id, post.slug, post.create_date,
   latest_rev.title
@@ -188,25 +188,25 @@ ORDER BY post.create_date DESC;
 
 ---
 
-## Technology Choices Summary
+## 技術選択のまとめ
 
-| Technology | Choice | Justification |
-|------------|--------|---------------|
-| Query Pattern | Two-query (posts + tags) | Balance of performance and simplicity |
-| tRPC Endpoint | Simple `.query()` returning array | Follows tRPC conventions, easy to extend |
-| Empty State | Conditional rendering with early return | Simple, Server Component compatible |
-| Revision Handling | Subquery for latest public revision | Ensures correct data, filters drafts |
-| Testing | Jest for backend, manual for frontend | Adequate coverage for MVP |
-
----
-
-## Open Issues Resolved
-
-1. ✅ **How to join tags efficiently**: Two-query pattern
-2. ✅ **tRPC best practices**: Use `.query()`, return typed array
-3. ✅ **Empty state pattern**: Conditional rendering
-4. ✅ **Multiple revisions**: Fetch latest public revision only
+| 技術 | 選択 | 正当化理由 |
+|------|------|----------|
+| クエリパターン | 2クエリ（記事 + タグ） | パフォーマンスとシンプルさのバランス |
+| tRPC エンドポイント | 配列を返すシンプルな `.query()` | tRPC 規約に従い、拡張が容易 |
+| 空の状態 | 早期リターン付き条件付きレンダリング | シンプルで Server Component と互換性あり |
+| リビジョン処理 | 最新の公開リビジョンのサブクエリ | 正しいデータを保証し、下書きをフィルタリング |
+| テスト | バックエンドは Jest、フロントエンドは手動 | MVP に適切なカバレッジ |
 
 ---
 
-**Status**: All research topics resolved. Ready for Phase 1 (Design Artifacts).
+## 解決された未解決の問題
+
+1. ✅ **タグを効率的に結合する方法**: 2クエリパターン
+2. ✅ **tRPC ベストプラクティス**: `.query()` を使用し、型付き配列を返す
+3. ✅ **空の状態パターン**: 条件付きレンダリング
+4. ✅ **複数リビジョン**: 最新の公開リビジョンのみを取得
+
+---
+
+**ステータス**: すべての研究トピックが解決されました。Phase 1（設計成果物）の準備ができています。

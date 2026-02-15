@@ -1,190 +1,190 @@
-# Implementation Plan: Blog Posts List Page
+# 実装計画: ブログ記事一覧ページ
 
-**Branch**: `002-posts-list-page` | **Date**: 2026-02-10 | **Spec**: [spec.md](./spec.md)
-**Input**: Feature specification from `/specs/002-posts-list-page/spec.md`
+**ブランチ**: `002-posts-list-page` | **日付**: 2026-02-10 | **仕様**: [spec.md](./spec.md)
+**入力**: `/specs/002-posts-list-page/spec.md` からの機能仕様
 
-**Note**: This template is filled in by the `/speckit.plan` command. See `.specify/templates/commands/plan.md` for the execution workflow.
+**注記**: このテンプレートは `/speckit.plan` コマンドによって記入されます。実行ワークフローについては `.specify/templates/commands/plan.md` を参照してください。
 
-## Summary
+## 概要
 
-Create a blog posts list page at `/posts` that displays all public blog posts with their titles (as clickable links to detail pages), associated tags, ordered by creation date (newest first). The page fetches data from the existing database schema via a new tRPC endpoint and handles empty states gracefully.
+`/posts` にブログ記事一覧ページを作成し、すべての公開ブログ記事をそのタイトル（詳細ページへのクリック可能なリンクとして）、関連するタグとともに、作成日順（新しい順）で表示します。ページは既存のデータベーススキーマから新しい tRPC エンドポイント経由でデータを取得し、空の状態を適切に処理します。
 
-## Technical Context
+## 技術的コンテキスト
 
-**Language/Version**: TypeScript 5.9.3, Node.js 22.x
-**Primary Dependencies**:
-- **Frontend**: Next.js 15.5.12 (App Router), React 19.2.4, tRPC Client 11.9.0, @tanstack/react-query 5.90.20
-- **Backend**: Express 5.2.1, tRPC Server 11.9.0, promise-mysql 5.2.0, Zod 4.3.6
+**言語/バージョン**: TypeScript 5.9.3, Node.js 22.x
+**主要な依存関係**:
+- **フロントエンド**: Next.js 15.5.12 (App Router), React 19.2.4, tRPC Client 11.9.0, @tanstack/react-query 5.90.20
+- **バックエンド**: Express 5.2.1, tRPC Server 11.9.0, promise-mysql 5.2.0, Zod 4.3.6
 
-**Storage**: MySQL 8.0 (existing schema: post, post_revision, tag_name, tag_post tables)
-**Testing**: Jest 30.2.0 (backend), manual testing (frontend), integration tests (optional)
-**Target Platform**: Web application (Docker containers, AWS deployment)
-**Project Type**: Monorepo web application (separate frontend and backend)
-**Performance Goals**: Page load <2 seconds, support 100+ posts without pagination initially
-**Constraints**:
-- Must use existing database schema (no schema modifications)
-- Must preserve type safety (tRPC contract)
-- Must filter public posts only (post_revision.public = 1)
-- Must handle posts with no tags
+**ストレージ**: MySQL 8.0 (既存スキーマ: post, post_revision, tag_name, tag_post テーブル)
+**テスト**: Jest 30.2.0 (バックエンド), 手動テスト (フロントエンド), 統合テスト (オプション)
+**ターゲットプラットフォーム**: Web アプリケーション (Docker コンテナ, AWS デプロイ)
+**プロジェクトタイプ**: モノレポ Web アプリケーション (フロントエンドとバックエンドを分離)
+**パフォーマンス目標**: ページ読み込み <2秒, 初期実装ではページネーションなしで100以上の記事をサポート
+**制約**:
+- 既存のデータベーススキーマを使用する必要がある（スキーマ変更なし）
+- 型安全性を維持する必要がある（tRPC コントラクト）
+- 公開記事のみをフィルタリングする必要がある（post_revision.public = 1）
+- タグのない記事を処理する必要がある
 
-**Scale/Scope**: Single page component, 1 new tRPC endpoint, minimal UI styling
+**規模/スコープ**: 単一ページコンポーネント, 1つの新しい tRPC エンドポイント, 最小限の UI スタイリング
 
-## Constitution Check
+## 憲法チェック
 
-*GATE: Must pass before Phase 0 research. Re-check after Phase 1 design.*
+*ゲート: Phase 0 研究前に合格する必要があります。Phase 1 設計後に再チェック。*
 
-### ✅ Type Safety First
-- **Status**: PASS
-- **Rationale**: tRPC endpoint will provide full-stack type safety. Zod schemas will validate database results. TypeScript strict mode enforced.
+### ✅ 型安全性ファースト
+- **ステータス**: 合格
+- **根拠**: tRPC エンドポイントはフルスタック型安全性を提供します。Zod スキーマがデータベース結果を検証します。TypeScript strict モードが強制されます。
 
-### ✅ Monorepo Architecture
-- **Status**: PASS
-- **Rationale**: Feature follows monorepo structure - frontend in `front/`, backend in `backend/`. Changes are isolated to these two apps. No modifications to `integration/` or `db/` required.
+### ✅ モノレポアーキテクチャ
+- **ステータス**: 合格
+- **根拠**: 機能はモノレポ構造に従っています - フロントエンドは `front/`、バックエンドは `backend/` にあります。変更はこれら2つのアプリに隔離されています。`integration/` や `db/` への変更は不要です。
 
-### ✅ Structured Development with spec-kit
-- **Status**: PASS
-- **Rationale**: Following spec-kit workflow: spec.md → plan.md → tasks.md → implement. This plan documents design before implementation.
+### ✅ spec-kit による構造化開発
+- **ステータス**: 合格
+- **根拠**: spec-kit ワークフローに従っています: spec.md → plan.md → tasks.md → implement。この計画は実装前の設計を文書化します。
 
-### ✅ Testing Strategy
-- **Status**: PASS
-- **Rationale**: Backend endpoint will have Jest unit tests. Frontend can be manually tested. Type safety provided by TypeScript. Integration tests optional (existing integration/ project can be extended if needed).
+### ✅ テスト戦略
+- **ステータス**: 合格
+- **根拠**: バックエンドエンドポイントには Jest ユニットテストがあります。フロントエンドは手動でテストできます。型安全性は TypeScript によって提供されます。統合テストはオプションです（既存の integration/ プロジェクトを必要に応じて拡張可能）。
 
-### ✅ Developer Experience
-- **Status**: PASS
-- **Rationale**: Existing Docker Compose setup will work unchanged. Hot reload available for both frontend and backend. ESLint + Prettier configurations already in place.
+### ✅ 開発者体験
+- **ステータス**: 合格
+- **根拠**: 既存の Docker Compose セットアップは変更なしで動作します。フロントエンドとバックエンドの両方でホットリロードが利用可能です。ESLint + Prettier 設定は既に配置されています。
 
-### Quality Standards Gates
+### 品質基準ゲート
 
-#### Code Quality
-- **Status**: PASS
-- **Gate**: TypeScript errors must be zero, ESLint errors must be zero
-- **Verification**: `pnpm run build` (both frontend and backend), `pnpm run lint`
+#### コード品質
+- **ステータス**: 合格
+- **ゲート**: TypeScript エラーはゼロである必要があります、ESLint エラーはゼロである必要があります
+- **検証**: `pnpm run build` (フロントエンドとバックエンドの両方)、`pnpm run lint`
 
-#### Security
-- **Status**: PASS
-- **Gate**: Input validation (Zod), SQL injection prevention (parameterized queries already in use), XSS prevention (React auto-escaping)
-- **Verification**: Zod schema validation for all inputs, existing `promise-mysql` uses parameterized queries
+#### セキュリティ
+- **ステータス**: 合格
+- **ゲート**: 入力検証（Zod）、SQL インジェクション防止（既に使用中のパラメータ化クエリ）、XSS 防止（React 自動エスケープ）
+- **検証**: すべての入力の Zod スキーマ検証、既存の `promise-mysql` がパラメータ化クエリを使用
 
-#### Performance
-- **Status**: PASS (initial implementation)
-- **Gate**: Page load <2 seconds
-- **Note**: Pagination (Issue #32) will be added later for improved performance with large datasets
+#### パフォーマンス
+- **ステータス**: 合格（初期実装）
+- **ゲート**: ページ読み込み <2秒
+- **注記**: ページネーション（Issue #32）は大規模データセットでのパフォーマンス向上のために後で追加されます
 
-### 🔄 Re-evaluation After Phase 1
+### 🔄 Phase 1 後の再評価
 
-**Re-check Complete**: All constitution principles remain satisfied after design phase.
+**再チェック完了**: 設計フェーズ後もすべての憲法原則が満たされています。
 
-✅ **Type Safety First**: tRPC endpoint defined with full type safety (PostListItem[], Tag types). Zod schemas validate all data.
+✅ **型安全性ファースト**: tRPC エンドポイントは完全な型安全性で定義されています（PostListItem[], Tag 型）。Zod スキーマがすべてのデータを検証します。
 
-✅ **Monorepo Architecture**: No changes to monorepo structure. Changes isolated to `backend/src/repositories/post.ts`, `backend/src/interface.ts`, `backend/src/index.ts`, and `front/src/app/posts/page.tsx`.
+✅ **モノレポアーキテクチャ**: モノレポ構造への変更はありません。変更は `backend/src/repositories/post.ts`、`backend/src/interface.ts`、`backend/src/index.ts`、`front/src/app/posts/page.tsx` に隔離されています。
 
-✅ **Structured Development**: Completed spec.md → plan.md → research.md → data-model.md → contracts/ → quickstart.md. Following spec-kit workflow.
+✅ **構造化開発**: spec.md → plan.md → research.md → data-model.md → contracts/ → quickstart.md を完了しました。spec-kit ワークフローに従っています。
 
-✅ **Testing Strategy**: Backend tests planned (Jest for `fetchAllPosts()`). Frontend manual testing sufficient for MVP.
+✅ **テスト戦略**: バックエンドテストを計画しました（`fetchAllPosts()` の Jest）。フロントエンドの手動テストは MVP に十分です。
 
-✅ **Developer Experience**: No changes to Docker Compose, dev containers, or tooling. Existing hot reload and linting continue to work.
+✅ **開発者体験**: Docker Compose、dev コンテナ、ツールへの変更はありません。既存のホットリロードと linting が引き続き動作します。
 
-**Conclusion**: No constitution violations. Design is compliant and ready for implementation.
+**結論**: 憲法違反はありません。設計は準拠しており、実装の準備ができています。
 
-## Project Structure
+## プロジェクト構造
 
-### Documentation (this feature)
+### ドキュメント（この機能）
 
 ```text
 specs/002-posts-list-page/
-├── plan.md              # This file (/speckit.plan command output)
-├── research.md          # Phase 0 output (/speckit.plan command)
-├── data-model.md        # Phase 1 output (/speckit.plan command)
-├── quickstart.md        # Phase 1 output (/speckit.plan command)
-├── contracts/           # Phase 1 output (/speckit.plan command)
-└── tasks.md             # Phase 2 output (/speckit.tasks command - NOT created by /speckit.plan)
+├── plan.md              # このファイル（/speckit.plan コマンド出力）
+├── research.md          # Phase 0 出力（/speckit.plan コマンド）
+├── data-model.md        # Phase 1 出力（/speckit.plan コマンド）
+├── quickstart.md        # Phase 1 出力（/speckit.plan コマンド）
+├── contracts/           # Phase 1 出力（/speckit.plan コマンド）
+└── tasks.md             # Phase 2 出力（/speckit.tasks コマンド - /speckit.plan では作成されません）
 ```
 
-### Source Code (repository root)
+### ソースコード（リポジトリルート）
 
 ```text
 backend/
 ├── src/
 │   ├── repositories/
-│   │   └── post.ts           # [MODIFY] Add fetchAllPosts() function
-│   ├── interface.ts           # [MODIFY] Add PostListItem type
-│   ├── index.ts               # [MODIFY] Add postsList endpoint to appRouter
+│   │   └── post.ts           # [変更] fetchAllPosts() 関数を追加
+│   ├── interface.ts           # [変更] PostListItem 型を追加
+│   ├── index.ts               # [変更] appRouter に postsList エンドポイントを追加
 │   └── utils/
-│       └── slug.ts            # [EXISTING] No changes needed
+│       └── slug.ts            # [既存] 変更不要
 └── test/
     └── repositories/
-        └── post.test.ts       # [NEW] Tests for fetchAllPosts()
+        └── post.test.ts       # [新規] fetchAllPosts() のテスト
 
 frontend/
 ├── src/
 │   └── app/
 │       └── posts/
-│           └── page.tsx       # [MODIFY] Replace 501 stub with actual implementation
-└── (no new test files - manual testing)
+│           └── page.tsx       # [変更] 501 スタブを実際の実装に置き換え
+└── (新しいテストファイルなし - 手動テスト)
 
 db/
-└── (no changes - existing schema used)
+└── (変更なし - 既存スキーマを使用)
 
 integration/
-└── (no changes - optional integration tests can be added later)
+└── (変更なし - オプションの統合テストは後で追加可能)
 ```
 
-**Structure Decision**: This is a web application (frontend + backend). Following the existing monorepo structure with separate `front/` and `backend/` directories. No new directories needed - all changes are additions/modifications to existing files.
+**構造の決定**: これは Web アプリケーション（フロントエンド + バックエンド）です。`front/` と `backend/` ディレクトリを分離した既存のモノレポ構造に従っています。新しいディレクトリは不要です - すべての変更は既存ファイルの追加/変更です。
 
-## Complexity Tracking
+## 複雑性追跡
 
-> **Fill ONLY if Constitution Check has violations that must be justified**
+> **憲法チェックに正当化が必要な違反がある場合のみ記入**
 
-*No violations. All constitution principles are satisfied.*
-
----
-
-## Phase 0: Research & Technical Decisions
-
-**Purpose**: Resolve technical unknowns and establish implementation patterns
-
-### Research Topics
-
-1. **Database Query Pattern**: How to efficiently fetch posts with tags (LEFT JOIN vs separate queries)
-2. **tRPC Endpoint Design**: Best practices for list endpoints in tRPC 11
-3. **Empty State Handling**: React patterns for graceful empty state display
+*違反はありません。すべての憲法原則が満たされています。*
 
 ---
 
-## Phase 1: Design Artifacts
+## Phase 0: 研究 & 技術的決定
 
-### Data Model (`data-model.md`)
+**目的**: 技術的な未知数を解決し、実装パターンを確立する
 
-Will define:
-- **PostListItem**: Type for list view (title, slug, tags[], createDate)
-- **Tag**: Tag information included in posts
-- Database query result schema (Zod validation)
+### 研究トピック
 
-### API Contracts (`contracts/`)
-
-Will generate:
-- tRPC procedure signature for `postsList` endpoint
-- Input schema (none - no parameters)
-- Output schema (array of PostListItem)
-
-### Quick Start (`quickstart.md`)
-
-Will document:
-- How to run the feature locally
-- How to test the posts list endpoint
-- How to verify database connectivity
+1. **データベースクエリパターン**: タグ付き記事を効率的に取得する方法（LEFT JOIN vs 個別クエリ）
+2. **tRPC エンドポイント設計**: tRPC 11 におけるリストエンドポイントのベストプラクティス
+3. **空の状態の処理**: 適切な空の状態表示のための React パターン
 
 ---
 
-## Phase 2: Implementation Tasks (Generated by `/speckit.tasks`)
+## Phase 1: 設計成果物
 
-Tasks will be generated in the next command.
+### データモデル（`data-model.md`）
+
+以下を定義します:
+- **PostListItem**: リストビューの型（title, slug, tags[], createDate）
+- **Tag**: 記事に含まれるタグ情報
+- データベースクエリ結果スキーマ（Zod 検証）
+
+### API コントラクト（`contracts/`）
+
+以下を生成します:
+- `postsList` エンドポイントの tRPC プロシージャシグネチャ
+- 入力スキーマ（なし - パラメータなし）
+- 出力スキーマ（PostListItem の配列）
+
+### クイックスタート（`quickstart.md`）
+
+以下を文書化します:
+- 機能をローカルで実行する方法
+- 記事一覧エンドポイントをテストする方法
+- データベース接続を確認する方法
 
 ---
 
-## Notes
+## Phase 2: 実装タスク（`/speckit.tasks` によって生成）
 
-- **Existing Infrastructure**: tRPC setup, database connection, and basic routing already in place
-- **Minimal Scope**: This is a straightforward CRUD read operation with no complex business logic
-- **Future Enhancements**: Pagination (#32), search (#17) are separate issues and out of scope
-- **Testing**: Backend unit tests required, frontend manual testing sufficient for MVP
+タスクは次のコマンドで生成されます。
+
+---
+
+## 注記
+
+- **既存インフラストラクチャ**: tRPC セットアップ、データベース接続、基本ルーティングは既に配置されています
+- **最小スコープ**: これは複雑なビジネスロジックのない単純な CRUD 読み取り操作です
+- **将来の拡張**: ページネーション（#32）、検索（#17）は別の Issue でありスコープ外です
+- **テスト**: バックエンドユニットテストが必要、フロントエンドの手動テストは MVP に十分です

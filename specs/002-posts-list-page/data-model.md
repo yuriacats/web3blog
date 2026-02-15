@@ -1,31 +1,31 @@
-# Data Model: Blog Posts List Page
+# データモデル: ブログ記事一覧ページ
 
-**Feature**: 002-posts-list-page
-**Date**: 2026-02-10
-**Purpose**: Define data structures and validation rules
+**機能**: 002-posts-list-page
+**日付**: 2026-02-10
+**目的**: データ構造と検証ルールを定義する
 
-## Entities
+## エンティティ
 
 ### PostListItem
 
-Represents a blog post in the list view.
+リストビューでのブログ記事を表します。
 
-**Purpose**: Provide essential information for displaying a post in the list (title, link, tags).
+**目的**: リストでの記事表示に必要な基本情報を提供する（タイトル、リンク、タグ）。
 
-**Fields**:
-| Field | Type | Description | Validation Rules |
-|-------|------|-------------|------------------|
-| `slug` | string | Unique identifier for the post (20 chars) | Required, exactly 20 characters |
-| `title` | string | Post title | Required, min 1 character, max 256 characters |
-| `tags` | Tag[] | Array of tags associated with the post | Optional, can be empty array |
-| `createDate` | Date | Post creation timestamp | Required, valid Date object |
+**フィールド**:
+| フィールド | 型 | 説明 | 検証ルール |
+|-----------|-----|------|----------|
+| `slug` | string | 記事の一意の識別子（20文字） | 必須、正確に20文字 |
+| `title` | string | 記事のタイトル | 必須、最小1文字、最大256文字 |
+| `tags` | Tag[] | 記事に関連付けられたタグの配列 | オプション、空の配列も可 |
+| `createDate` | Date | 記事の作成タイムスタンプ | 必須、有効な Date オブジェクト |
 
-**Relationships**:
-- PostListItem has many Tags (many-to-many via tag_post table)
+**関係**:
+- PostListItem は多数の Tag を持つ（tag_post テーブル経由の多対多）
 
-**State Transitions**: N/A (read-only entity)
+**状態遷移**: なし（読み取り専用エンティティ）
 
-**Validation Schema (Zod)**:
+**検証スキーマ（Zod）**:
 ```typescript
 const PostListItemSchema = z.object({
   slug: z.string().length(20),
@@ -39,22 +39,22 @@ const PostListItemSchema = z.object({
 
 ### Tag
 
-Represents a categorization label for posts.
+記事のカテゴリーラベルを表します。
 
-**Purpose**: Allow users to understand post topics at a glance.
+**目的**: ユーザーが一目で記事のトピックを理解できるようにする。
 
-**Fields**:
-| Field | Type | Description | Validation Rules |
-|-------|------|-------------|------------------|
-| `id` | number | Unique tag identifier | Required, positive integer |
-| `name` | string | Tag display name | Required, min 1 character, max 20 characters |
+**フィールド**:
+| フィールド | 型 | 説明 | 検証ルール |
+|-----------|-----|------|----------|
+| `id` | number | 一意のタグ識別子 | 必須、正の整数 |
+| `name` | string | タグの表示名 | 必須、最小1文字、最大20文字 |
 
-**Relationships**:
-- Tag belongs to many PostListItem (many-to-many via tag_post table)
+**関係**:
+- Tag は多数の PostListItem に属する（tag_post テーブル経由の多対多）
 
-**State Transitions**: N/A (read-only for this feature)
+**状態遷移**: なし（この機能では読み取り専用）
 
-**Validation Schema (Zod)**:
+**検証スキーマ（Zod）**:
 ```typescript
 const TagSchema = z.object({
   id: z.number().int().positive(),
@@ -64,9 +64,9 @@ const TagSchema = z.object({
 
 ---
 
-## Database Queries
+## データベースクエリ
 
-### Query 1: Fetch All Public Posts
+### クエリ 1: すべての公開記事を取得
 
 ```sql
 SELECT
@@ -87,13 +87,13 @@ ON post_revision.id = latest.max_rev_id
 ORDER BY post.create_date DESC;
 ```
 
-**Returns**: Array of `{ id, slug, create_date, title }`
+**戻り値**: `{ id, slug, create_date, title }` の配列
 
-**Validation**: Parse with Zod schema for database results
+**検証**: データベース結果用の Zod スキーマで解析
 
 ---
 
-### Query 2: Fetch Tags for Posts
+### クエリ 2: 記事のタグを取得
 
 ```sql
 SELECT
@@ -105,38 +105,38 @@ JOIN tag_name ON tag_post.tag_id = tag_name.id
 WHERE tag_post.post_id IN (?, ?, ...);
 ```
 
-**Returns**: Array of `{ post_id, id, name }`
+**戻り値**: `{ post_id, id, name }` の配列
 
-**Validation**: Parse with Zod schema, then group by post_id
-
----
-
-## Data Flow
-
-```
-Database (MySQL)
-    ↓
-[Query 1: Posts] → Zod Validation → Post[]
-[Query 2: Tags]  → Zod Validation → { post_id → Tag[] }
-    ↓
-Application Layer (Backend Repository)
-    ↓
-Merge posts with tags → PostListItem[]
-    ↓
-tRPC Endpoint
-    ↓
-SuperJSON Serialization (handles Date objects)
-    ↓
-Frontend (Next.js Server Component)
-    ↓
-Render UI
-```
+**検証**: Zod スキーマで解析し、その後 post_id でグループ化
 
 ---
 
-## Type Definitions
+## データフロー
 
-### Backend Interface (interface.ts)
+```
+データベース（MySQL）
+    ↓
+[クエリ 1: 記事] → Zod 検証 → Post[]
+[クエリ 2: タグ]  → Zod 検証 → { post_id → Tag[] }
+    ↓
+アプリケーション層（バックエンドリポジトリ）
+    ↓
+記事とタグをマージ → PostListItem[]
+    ↓
+tRPC エンドポイント
+    ↓
+SuperJSON シリアライゼーション（Date オブジェクトを処理）
+    ↓
+フロントエンド（Next.js Server Component）
+    ↓
+UI レンダリング
+```
+
+---
+
+## 型定義
+
+### バックエンドインターフェース（interface.ts）
 
 ```typescript
 import { z } from "zod";
@@ -158,9 +158,9 @@ export type PostListItem = z.infer<typeof PostListItemSchema>;
 
 ---
 
-## Database Schema Reference
+## データベーススキーマ参照
 
-**Existing Tables** (no modifications):
+**既存テーブル**（変更なし）:
 
 ```sql
 CREATE TABLE post(
@@ -175,7 +175,7 @@ CREATE TABLE post_revision(
     title varchar(256) NOT NULL,
     author_id int NOT NULL,
     post_id int NOT NULL,
-    public int NOT NULL,  -- 0 = draft, 1 = public
+    public int NOT NULL,  -- 0 = 下書き, 1 = 公開
     post_data MEDIUMTEXT NOT NULL,
     FOREIGN KEY (post_id) REFERENCES post(id)
 );
@@ -195,13 +195,13 @@ CREATE TABLE tag_post(
 
 ---
 
-## Edge Cases
+## エッジケース
 
-1. **Post with no tags**: `tags` array will be empty `[]`
-2. **Multiple revisions**: Only latest public revision is fetched
-3. **All posts are drafts**: Empty array returned (handled by empty state in UI)
-4. **Very long titles**: Database enforces 256 char limit, Zod validates
+1. **タグのない記事**: `tags` 配列は空 `[]` になる
+2. **複数のリビジョン**: 最新の公開リビジョンのみが取得される
+3. **すべての記事が下書き**: 空の配列が返される（UI で空の状態として処理）
+4. **非常に長いタイトル**: データベースが256文字制限を強制、Zod が検証
 
 ---
 
-**Status**: Data model defined. Ready for API contracts and quickstart guide.
+**ステータス**: データモデルが定義されました。API コントラクトとクイックスタートガイドの準備ができています。

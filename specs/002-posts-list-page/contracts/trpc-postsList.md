@@ -1,46 +1,46 @@
-# tRPC Contract: postsList
+# tRPC コントラクト: postsList
 
-**Endpoint**: `postsList`
-**Type**: Query (read operation)
-**Purpose**: Fetch all public blog posts with their tags for list display
+**エンドポイント**: `postsList`
+**タイプ**: クエリ（読み取り操作）
+**目的**: リスト表示用にすべての公開ブログ記事とそのタグを取得する
 
-## Request
+## リクエスト
 
-**Method**: `query`
+**メソッド**: `query`
 
-**Input**: None
+**入力**: なし
 
-**TypeScript Type**:
+**TypeScript 型**:
 ```typescript
-// No input parameters
+// 入力パラメータなし
 void
 ```
 
 ---
 
-## Response
+## レスポンス
 
-**Output**: Array of PostListItem
+**出力**: PostListItem の配列
 
-**TypeScript Type**:
+**TypeScript 型**:
 ```typescript
 type PostListItem = {
-  slug: string;           // 20-character unique identifier
-  title: string;          // Post title (1-256 chars)
-  tags: Tag[];           // Array of associated tags (can be empty)
-  createDate: Date;      // Post creation timestamp
+  slug: string;           // 20文字の一意の識別子
+  title: string;          // 記事のタイトル（1-256文字）
+  tags: Tag[];           // 関連するタグの配列（空も可）
+  createDate: Date;      // 記事の作成タイムスタンプ
 };
 
 type Tag = {
-  id: number;            // Unique tag ID
-  name: string;          // Tag name (1-20 chars)
+  id: number;            // 一意のタグID
+  name: string;          // タグ名（1-20文字）
 };
 
-// Endpoint returns:
+// エンドポイントの戻り値:
 PostListItem[]
 ```
 
-**Zod Schema**:
+**Zod スキーマ**:
 ```typescript
 import { z } from "zod";
 
@@ -56,37 +56,37 @@ const PostListItemSchema = z.object({
   createDate: z.coerce.date(),
 });
 
-// Return type validation
+// 戻り値の型検証
 const PostsListResponseSchema = z.array(PostListItemSchema);
 ```
 
 ---
 
-## Behavior
+## 動作
 
-**Success Case**:
-- Returns array of all public posts (post_revision.public = 1)
-- Posts are ordered by creation date (newest first)
-- Each post includes its associated tags
-- Posts without tags have empty `tags` array
+**成功時の動作**:
+- すべての公開記事の配列を返す（post_revision.public = 1）
+- 記事は作成日順に並べられ、最新の記事が最初
+- 各記事には関連するタグが含まれる
+- タグのない記事は空の `tags` 配列を持つ
 
-**Empty State**:
-- Returns `[]` (empty array) if no public posts exist
-- Frontend handles empty state with appropriate message
+**空の状態**:
+- 公開記事が存在しない場合、`[]`（空の配列）を返す
+- フロントエンドは適切なメッセージで空の状態を処理
 
-**Error Cases**:
-- Database connection failure: Throws tRPC error
-- Query execution error: Throws tRPC error
+**エラーケース**:
+- データベース接続失敗: tRPC エラーをスロー
+- クエリ実行エラー: tRPC エラーをスロー
 
 ---
 
-## tRPC Procedure Definition
+## tRPC プロシージャ定義
 
 ```typescript
-// In backend/src/index.ts (appRouter)
+// backend/src/index.ts (appRouter 内)
 
 export const appRouter = t.router({
-  // ... existing endpoints
+  // ... 既存のエンドポイント
 
   postsList: t.procedure
     .query(async (): Promise<PostListItem[]> => {
@@ -97,19 +97,19 @@ export const appRouter = t.router({
 
 ---
 
-## Frontend Usage
+## フロントエンドでの使用
 
-**Next.js Server Component** (Server-side fetch):
+**Next.js Server Component**（サーバーサイドフェッチ）:
 ```typescript
-// In front/src/app/posts/page.tsx
+// front/src/app/posts/page.tsx
 
-import { trpc } from '@/utils/trpc'; // tRPC client
+import { trpc } from '@/utils/trpc'; // tRPC クライアント
 
 export default async function PostsPage() {
   const posts = await trpc.postsList.query();
 
   if (posts.length === 0) {
-    return <div>No posts available</div>;
+    return <div>投稿がありません</div>;
   }
 
   return (
@@ -129,7 +129,7 @@ export default async function PostsPage() {
 }
 ```
 
-**Alternative: Client Component** (if needed):
+**代替案: Client Component**（必要な場合）:
 ```typescript
 'use client';
 
@@ -138,9 +138,9 @@ import { trpc } from '@/utils/trpc';
 export default function PostsPage() {
   const { data: posts, isLoading, error } = trpc.postsList.useQuery();
 
-  if (isLoading) return <div>Loading...</div>;
-  if (error) return <div>Error loading posts</div>;
-  if (!posts || posts.length === 0) return <div>No posts available</div>;
+  if (isLoading) return <div>読み込み中...</div>;
+  if (error) return <div>投稿の読み込みエラー</div>;
+  if (!posts || posts.length === 0) return <div>投稿がありません</div>;
 
   return (
     <ul>
@@ -161,33 +161,33 @@ export default function PostsPage() {
 
 ---
 
-## Type Safety Guarantees
+## 型安全性の保証
 
-1. **Full-stack type safety**: TypeScript ensures frontend and backend use same types
-2. **Runtime validation**: Zod validates database results match expected schema
-3. **Date serialization**: SuperJSON transformer (already configured) handles Date objects
-4. **Compile-time checks**: TypeScript compiler catches type mismatches
-
----
-
-## Performance Characteristics
-
-**Expected Latency**: <100ms for <100 posts
-**Database Queries**: 2 queries (posts + tags)
-**Caching**: None (initial implementation)
-**Scalability**: Supports up to ~1000 posts before pagination needed
+1. **フルスタック型安全性**: TypeScript によりフロントエンドとバックエンドが同じ型を使用することを保証
+2. **ランタイム検証**: Zod がデータベース結果が期待されるスキーマと一致することを検証
+3. **Date シリアライゼーション**: SuperJSON トランスフォーマー（既に設定済み）が Date オブジェクトを処理
+4. **コンパイル時チェック**: TypeScript コンパイラが型の不一致を検出
 
 ---
 
-## Future Enhancements (Out of Scope)
+## パフォーマンス特性
 
-- Pagination parameters (`offset`, `limit`)
-- Filtering parameters (`tagId`, `authorId`)
-- Sorting options (`newest`, `oldest`, `popular`)
-- Search query parameter
-
-These will be added in future issues (#32 for pagination, #17 for search).
+**予想レイテンシ**: <100記事で <100ms
+**データベースクエリ**: 2クエリ（記事 + タグ）
+**キャッシング**: なし（初期実装）
+**スケーラビリティ**: ページネーションが必要になるまで ~1000記事をサポート
 
 ---
 
-**Status**: Contract defined. Implementation ready.
+## 将来の拡張（スコープ外）
+
+- ページネーションパラメータ（`offset`, `limit`）
+- フィルタリングパラメータ（`tagId`, `authorId`）
+- ソートオプション（`newest`, `oldest`, `popular`）
+- 検索クエリパラメータ
+
+これらは将来の Issue で追加されます（#32 でページネーション、#17 で検索）。
+
+---
+
+**ステータス**: コントラクトが定義されました。実装の準備ができています。

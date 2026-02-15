@@ -1,130 +1,130 @@
-# Feature Specification: Blog Posts List Page
+# 機能仕様: ブログ記事一覧ページ
 
-**Feature Branch**: `002-posts-list-page`
-**Created**: 2026-02-10
-**Status**: Draft
-**Input**: User description: "Issue #16: Create posts/page.tsx to display a list of blog posts with links, titles, and tags"
+**機能ブランチ**: `002-posts-list-page`
+**作成日**: 2026-02-10
+**ステータス**: ドラフト
+**入力**: ユーザー説明: "Issue #16: リンク、タイトル、タグを含むブログ記事一覧を表示する posts/page.tsx を作成"
 
-## User Scenarios & Testing *(mandatory)*
+## ユーザーシナリオ & テスト *(必須)*
 
-### User Story 1 - Browse Recent Blog Posts (Priority: P1)
+### ユーザーストーリー 1 - 最新のブログ記事を閲覧 (優先度: P1)
 
-Visitors want to see a list of available blog posts so they can discover and navigate to content that interests them.
+訪問者は利用可能なブログ記事の一覧を見て、興味のあるコンテンツを発見してナビゲートできるようにしたい。
 
-**Why this priority**: This is the core functionality of a blog - without a browsable list of posts, visitors cannot discover content. This is the minimum viable feature that delivers immediate user value.
+**この優先度の理由**: これはブログの中核機能です - 閲覧可能な記事一覧がなければ、訪問者はコンテンツを発見できません。これは即座にユーザー価値を提供する最小限の実行可能な機能です。
 
-**Independent Test**: Can be fully tested by visiting `/posts` and verifying that a list of posts with titles, links, and tags is displayed. Delivers immediate value by enabling content discovery.
+**独立したテスト**: `/posts` にアクセスして、タイトル、リンク、タグを含む記事一覧が表示されることを確認することで、完全にテストできます。コンテンツの発見を可能にすることで即座に価値を提供します。
 
-**Acceptance Scenarios**:
+**受け入れシナリオ**:
 
-1. **Given** the blog has published posts, **When** a visitor navigates to `/posts`, **Then** they see a list of post titles with clickable links
-2. **Given** posts have associated tags, **When** the posts list is displayed, **Then** each post shows its associated tags
-3. **Given** multiple posts exist, **When** the visitor views the list, **Then** posts are displayed in reverse chronological order (newest first)
-4. **Given** a visitor clicks on a post title, **When** the link is followed, **Then** they are taken to the individual post page (`/posts/[slug]`)
-
----
-
-### User Story 2 - Navigate Empty State Gracefully (Priority: P2)
-
-When no posts are available, visitors should see a clear message rather than a confusing empty page.
-
-**Why this priority**: Edge case handling improves user experience but is not critical for MVP. The blog will have at least one test post in most scenarios.
-
-**Independent Test**: Can be tested by viewing `/posts` with an empty database and verifying a friendly "no posts" message is displayed.
-
-**Acceptance Scenarios**:
-
-1. **Given** no blog posts exist, **When** a visitor navigates to `/posts`, **Then** they see a message indicating no posts are available
-2. **Given** all posts are drafts (not public), **When** a visitor views `/posts`, **Then** only public posts are shown (or empty state if none are public)
+1. **前提**: ブログに公開された記事がある、**条件**: 訪問者が `/posts` にナビゲートする、**結果**: クリック可能なリンク付きの記事タイトル一覧が表示される
+2. **前提**: 記事に関連するタグがある、**条件**: 記事一覧が表示される、**結果**: 各記事に関連するタグが表示される
+3. **前提**: 複数の記事が存在する、**条件**: 訪問者が一覧を表示する、**結果**: 記事は新しい順（降順）で表示される
+4. **前提**: 訪問者が記事タイトルをクリックする、**条件**: リンクが辿られる、**結果**: 個別の記事ページ (`/posts/[slug]`) に遷移する
 
 ---
 
-### Edge Cases
+### ユーザーストーリー 2 - 空の状態を適切に処理 (優先度: P2)
 
-- What happens when a post has no tags assigned?
-- How does the system handle posts with very long titles (>256 characters)?
-- What happens if the database connection fails while fetching the posts list?
-- How are draft posts (public=0 in post_revision) excluded from the public list?
+記事が利用できない場合、訪問者は混乱する空のページではなく、明確なメッセージを見るべきです。
 
-## Requirements *(mandatory)*
+**この優先度の理由**: エッジケースの処理はユーザー体験を向上させますが、MVP には必須ではありません。ブログはほとんどのシナリオで少なくとも1つのテスト記事を持ちます。
 
-### Functional Requirements
+**独立したテスト**: 空のデータベースで `/posts` を表示し、フレンドリーな「記事がありません」メッセージが表示されることを確認することでテストできます。
 
-- **FR-001**: System MUST display a list of all public blog posts on the `/posts` route
-- **FR-002**: System MUST show the post title for each entry in the list
-- **FR-003**: System MUST provide a clickable link to each post's detail page (`/posts/[slug]`)
-- **FR-004**: System MUST display all tags associated with each post
-- **FR-005**: System MUST order posts by creation date, with newest posts first
-- **FR-006**: System MUST only display posts marked as public (exclude drafts)
-- **FR-007**: System MUST show an appropriate message when no posts are available
-- **FR-008**: System MUST fetch posts from the existing database schema (post, post_revision, tag_name, tag_post tables)
-- **FR-009**: System MUST handle posts without tags gracefully (display post without tag list)
+**受け入れシナリオ**:
 
-### Key Entities *(include if feature involves data)*
+1. **前提**: ブログ記事が存在しない、**条件**: 訪問者が `/posts` にナビゲートする、**結果**: 記事が利用できないことを示すメッセージが表示される
+2. **前提**: すべての記事が下書き（非公開）、**条件**: 訪問者が `/posts` を表示する、**結果**: 公開記事のみが表示される（公開記事がない場合は空の状態）
 
-- **Post**: Represents a blog article with title, slug (unique identifier), creation date, and publication status
-- **Tag**: Categorization label associated with posts, allowing content organization
-- **Post Revision**: Versioned content for a post, including title, content, and public/draft status
-- **Post-Tag Relationship**: Many-to-many association between posts and tags
+---
 
-## Success Criteria *(mandatory)*
+### エッジケース
 
-### Measurable Outcomes
+- タグが割り当てられていない記事の場合、何が起こるか？
+- 非常に長いタイトル（256文字以上）を持つ記事をシステムはどのように処理するか？
+- 記事一覧の取得中にデータベース接続が失敗した場合、何が起こるか？
+- 下書き記事（post_revision で public=0）は公開一覧からどのように除外されるか？
 
-- **SC-001**: Visitors can view the posts list page and see all public posts within 2 seconds of page load
-- **SC-002**: 100% of clickable post links navigate to the correct individual post page
-- **SC-003**: All tags associated with each post are visible in the list view
-- **SC-004**: Posts are consistently ordered by creation date (newest first) across all page views
-- **SC-005**: Page displays gracefully with no posts (empty state) or with 100+ posts (performance maintained)
-- **SC-006**: Zero public draft posts are accidentally displayed in the list
+## 要件 *(必須)*
 
-## Scope
+### 機能要件
 
-### In Scope
+- **FR-001**: システムは `/posts` ルートにすべての公開ブログ記事の一覧を表示しなければならない
+- **FR-002**: システムは一覧の各エントリに記事タイトルを表示しなければならない
+- **FR-003**: システムは各記事の詳細ページ (`/posts/[slug]`) へのクリック可能なリンクを提供しなければならない
+- **FR-004**: システムは各記事に関連するすべてのタグを表示しなければならない
+- **FR-005**: システムは記事を作成日順に並べ、最新の記事を最初に表示しなければならない
+- **FR-006**: システムは公開としてマークされた記事のみを表示しなければならない（下書きを除外）
+- **FR-007**: システムは記事が利用できない場合に適切なメッセージを表示しなければならない
+- **FR-008**: システムは既存のデータベーススキーマ（post, post_revision, tag_name, tag_post テーブル）から記事を取得しなければならない
+- **FR-009**: システムはタグのない記事を適切に処理しなければならない（タグリストなしで記事を表示）
 
-- Displaying a basic list of blog posts with title, link, and tags
-- Fetching data from existing database schema
-- Ordering posts by creation date (newest first)
-- Filtering out draft/unpublished posts
-- Handling empty state (no posts available)
-- Basic styling consistent with existing application design
+### 主要なエンティティ *(機能がデータを含む場合に含める)*
 
-### Out of Scope
+- **Post**: タイトル、スラッグ（一意の識別子）、作成日、公開ステータスを持つブログ記事を表す
+- **Tag**: 記事に関連付けられたカテゴリーラベルで、コンテンツの整理を可能にする
+- **Post Revision**: タイトル、コンテンツ、公開/下書きステータスを含む、記事のバージョン管理されたコンテンツ
+- **Post-Tag Relationship**: 記事とタグの多対多の関連
 
-- Pagination or infinite scroll (covered in Issue #32)
-- Search functionality (covered in Issue #17)
-- Tag filtering or tag-based navigation (covered in Issue #17)
-- Sorting options (e.g., by popularity, alphabetical)
-- Post previews or excerpts (not required in Issue #16)
-- Author information display (not mentioned in requirements)
-- Date display for posts (not mentioned in requirements)
+## 成功基準 *(必須)*
 
-## Assumptions
+### 測定可能な成果
 
-- The existing database schema (post, post_revision, tag_name, tag_post) is correct and contains the necessary data
-- At least one public post exists for testing (from `db/10_testData.sql`)
-- The individual post detail page (`/posts/[slug]`) already exists or is being implemented in parallel (Issue #15)
-- Tags are optional for posts (a post can exist without tags)
-- "Public" posts are determined by `post_revision.public = 1`
-- The most recent post_revision for a post determines its current state
-- Performance is acceptable without pagination for the initial implementation (pagination is a separate issue #32)
+- **SC-001**: 訪問者はページ読み込みから2秒以内に記事一覧ページを表示し、すべての公開記事を見ることができる
+- **SC-002**: クリック可能な記事リンクの100%が正しい個別記事ページにナビゲートする
+- **SC-003**: 各記事に関連するすべてのタグが一覧ビューで表示される
+- **SC-004**: 記事はすべてのページビューで一貫して作成日順（新しい順）に並べられる
+- **SC-005**: ページは記事がない場合（空の状態）または100以上の記事がある場合（パフォーマンスが維持される）でも適切に表示される
+- **SC-006**: 公開下書き記事が誤って一覧に表示されることはゼロ件
 
-## Dependencies & Constraints
+## スコープ
 
-### Dependencies
+### スコープ内
 
-- Existing database schema must be available and populated
-- Database connection from backend to MySQL must be functional
-- tRPC infrastructure must be set up for frontend-backend communication (already exists in codebase)
+- タイトル、リンク、タグを含む基本的なブログ記事一覧の表示
+- 既存のデータベーススキーマからのデータ取得
+- 作成日順（新しい順）での記事の並べ替え
+- 下書き/未公開記事のフィルタリング
+- 空の状態の処理（記事が利用できない場合）
+- 既存のアプリケーションデザインと一貫した基本的なスタイリング
 
-### Constraints
+### スコープ外
 
-- Must use existing monorepo structure (frontend in `front/`, backend in `backend/`)
-- Must use existing tRPC setup for type-safe API calls
-- Must follow Next.js 15 App Router conventions (already in use)
-- Must integrate with existing design system (minimal styling consistency required)
-- Must not modify database schema (work with existing tables)
+- ページネーションまたは無限スクロール（Issue #32 でカバー）
+- 検索機能（Issue #17 でカバー）
+- タグフィルタリングまたはタグベースのナビゲーション（Issue #17 でカバー）
+- ソートオプション（例：人気順、アルファベット順）
+- 記事のプレビューまたは抜粋（Issue #16 では要求されていない）
+- 著者情報の表示（要件で言及されていない）
+- 記事の日付表示（要件で言及されていない）
 
-## Open Questions
+## 前提条件
 
-*None at this time. All requirements are sufficiently defined based on Issue #16 description and existing codebase structure.*
+- 既存のデータベーススキーマ（post, post_revision, tag_name, tag_post）が正しく、必要なデータが含まれている
+- テスト用に少なくとも1つの公開記事が存在する（`db/10_testData.sql` から）
+- 個別の記事詳細ページ (`/posts/[slug]`) が既に存在するか、並行して実装されている（Issue #15）
+- タグは記事にとってオプションである（記事はタグなしで存在できる）
+- 「公開」記事は `post_revision.public = 1` で決定される
+- 記事の最新の post_revision がその現在の状態を決定する
+- 初期実装ではページネーションなしでパフォーマンスが許容可能である（ページネーションは別の Issue #32）
+
+## 依存関係 & 制約
+
+### 依存関係
+
+- 既存のデータベーススキーマが利用可能で、データが投入されている必要がある
+- バックエンドから MySQL へのデータベース接続が機能している必要がある
+- フロントエンドとバックエンド間の通信のために tRPC インフラストラクチャがセットアップされている必要がある（コードベースに既に存在）
+
+### 制約
+
+- 既存のモノレポ構造を使用する必要がある（フロントエンドは `front/`、バックエンドは `backend/`）
+- 型安全な API 呼び出しのために既存の tRPC セットアップを使用する必要がある
+- Next.js 15 App Router の規約に従う必要がある（既に使用中）
+- 既存のデザインシステムと統合する必要がある（最小限のスタイリングの一貫性が必要）
+- データベーススキーマを変更してはならない（既存のテーブルで動作）
+
+## 未解決の質問
+
+*現時点ではなし。すべての要件は Issue #16 の説明と既存のコードベース構造に基づいて十分に定義されています。*

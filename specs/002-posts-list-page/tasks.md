@@ -1,251 +1,251 @@
-# Tasks: Blog Posts List Page
+# タスク: ブログ記事一覧ページ
 
-**Input**: Design documents from `/specs/002-posts-list-page/`
-**Prerequisites**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md
+**入力**: `/specs/002-posts-list-page/` の設計ドキュメント
+**前提条件**: plan.md, spec.md, research.md, data-model.md, contracts/, quickstart.md
 
-**Tests**: No explicit test tasks requested in spec.md. Backend repository function will be tested manually during development. Formal Jest tests are optional enhancement.
+**テスト**: spec.md で明示的なテストタスクは要求されていません。バックエンドリポジトリ関数は開発中に手動でテストされます。正式な Jest テストはオプションの拡張です。
 
-**Organization**: Tasks are grouped by user story (US1: Browse posts, US2: Empty state) to enable independent implementation and testing.
+**構成**: タスクはユーザーストーリー（US1: 記事を閲覧、US2: 空の状態）ごとにグループ化され、独立した実装とテストを可能にします。
 
-## Format: `[ID] [P?] [Story] Description`
+## フォーマット: `[ID] [P?] [Story] 説明`
 
-- **[P]**: Can run in parallel (different files, no dependencies)
-- **[Story]**: Which user story this task belongs to (US1, US2)
-- Include exact file paths in descriptions
+- **[P]**: 並列実行可能（異なるファイル、依存関係なし）
+- **[Story]**: このタスクが属するユーザーストーリー（US1, US2）
+- 説明には正確なファイルパスを含める
 
-## Path Conventions
+## パス規約
 
-- **Monorepo structure**: `backend/src/`, `front/src/app/` at repository root
-- **Backend**: TypeScript files in `backend/src/`
-- **Frontend**: Next.js App Router pages in `front/src/app/`
-
----
-
-## Phase 1: Setup (Verification & Preparation)
-
-**Purpose**: Verify existing infrastructure is ready and prepare for implementation
-
-- [ ] T001 Verify database connection and schema: Run `docker-compose up -d db && docker-compose exec db mysql -u backend -ptoor -e "USE webblog; SHOW TABLES;"`
-- [ ] T002 Verify test data exists: Run `docker-compose exec db mysql -u backend -ptoor -e "USE webblog; SELECT COUNT(*) FROM post;"`
-- [ ] T003 [P] Verify backend builds: Run `cd backend && pnpm run build`
-- [ ] T004 [P] Verify frontend builds: Run `cd front && pnpm run build`
-- [ ] T005 Verify tRPC infrastructure: Check `backend/src/index.ts` exports `appRouter` and `frontend` can import types
-
-**Checkpoint**: All infrastructure verified - ready for implementation
+- **モノレポ構造**: リポジトリルートに `backend/src/`、`front/src/app/`
+- **バックエンド**: `backend/src/` の TypeScript ファイル
+- **フロントエンド**: `front/src/app/` の Next.js App Router ページ
 
 ---
 
-## Phase 2: Foundational (Type Definitions & Database Access)
+## Phase 1: セットアップ（検証 & 準備）
 
-**Purpose**: Core type definitions and database utilities that ALL user stories depend on
+**目的**: 既存のインフラストラクチャの準備ができているか確認し、実装の準備をする
 
-**⚠️ CRITICAL**: These must be complete before any user story implementation can begin
+- [ ] T001 データベース接続とスキーマを確認: `docker-compose up -d db && docker-compose exec db mysql -u backend -ptoor -e "USE webblog; SHOW TABLES;"` を実行
+- [ ] T002 テストデータの存在を確認: `docker-compose exec db mysql -u backend -ptoor -e "USE webblog; SELECT COUNT(*) FROM post;"` を実行
+- [ ] T003 [P] バックエンドビルドを確認: `cd backend && pnpm run build` を実行
+- [ ] T004 [P] フロントエンドビルドを確認: `cd front && pnpm run build` を実行
+- [ ] T005 tRPC インフラストラクチャを確認: `backend/src/index.ts` が `appRouter` をエクスポートし、`frontend` が型をインポートできることを確認
 
-- [ ] T006 [P] Add Tag type to `backend/src/interface.ts`: Define `TagSchema` and `Tag` type using Zod
-- [ ] T007 [P] Add PostListItem type to `backend/src/interface.ts`: Define `PostListItemSchema` and `PostListItem` type with slug, title, tags[], createDate
-- [ ] T008 Create database connection helper if not exists: Verify `backend/src/repository.ts` exports `connection()` function (already exists)
-
-**Checkpoint**: Type definitions ready - user stories can now be implemented
-
----
-
-## Phase 3: User Story 1 - Browse Recent Blog Posts (Priority: P1) 🎯 MVP
-
-**Goal**: Display a list of all public blog posts with titles, clickable links, tags, ordered newest first
-
-**Independent Test**: Navigate to `http://localhost:3000/posts` and verify that posts list displays with titles (clickable), tags, and newest posts appear first. Click a post title and verify it navigates to `/posts/[slug]`.
-
-**Acceptance Criteria** (from spec.md):
-- ✅ List of posts with titles and clickable links displayed
-- ✅ Tags shown for each post
-- ✅ Posts ordered newest first
-- ✅ Links navigate to correct detail page
-
-### Implementation for User Story 1
-
-#### Backend: Database Repository
-
-- [ ] T009 [US1] Implement `fetchAllPosts()` in `backend/src/repositories/post.ts`: Create function that executes two-query pattern (posts query + tags query) and returns `PostListItem[]`
-- [ ] T010 [US1] Add posts query in `fetchAllPosts()`: SELECT post.id, post.slug, post.create_date, post_revision.title FROM post JOIN (latest public revision subquery) ORDER BY create_date DESC
-- [ ] T011 [US1] Add tags query in `fetchAllPosts()`: SELECT tag_post.post_id, tag_name.id, tag_name.name FROM tag_post JOIN tag_name WHERE post_id IN (...)
-- [ ] T012 [US1] Implement data merging logic in `fetchAllPosts()`: Combine posts and tags into `PostListItem[]` with proper Zod validation
-
-#### Backend: tRPC Endpoint
-
-- [ ] T013 [US1] Add `postsList` endpoint to `backend/src/index.ts`: Define `t.procedure.query()` that calls `fetchAllPosts()` and returns `Promise<PostListItem[]>`
-- [ ] T014 [US1] Verify tRPC endpoint type export: Ensure `AppRouter` type includes `postsList` for frontend type safety
-
-#### Frontend: Posts List Page
-
-- [ ] T015 [US1] Replace 501 stub in `front/src/app/posts/page.tsx`: Create Server Component that calls `trpc.postsList.query()`
-- [ ] T016 [US1] Implement posts list rendering: Map over `posts` array and render each post with `<Link href={/posts/${post.slug}}>{post.title}</Link>`
-- [ ] T017 [US1] Implement tags rendering: For each post, map over `post.tags` and display tag names (e.g., `<span>{tag.name}</span>`)
-- [ ] T018 [US1] Add basic styling: Apply minimal CSS for readability (list formatting, link styling, tag display)
-
-#### Verification
-
-- [ ] T019 [US1] Manual test: Start `docker-compose up`, navigate to `http://localhost:3000/posts`, verify posts display correctly
-- [ ] T020 [US1] Test clickable links: Click on a post title, verify navigation to `/posts/[slug]` works
-- [ ] T021 [US1] Test tags display: Verify all tags for each post are visible
-- [ ] T022 [US1] Test ordering: Verify posts are ordered newest first (check `create_date`)
-
-**Checkpoint**: User Story 1 complete - MVP functional (blog posts browsable)
+**チェックポイント**: すべてのインフラストラクチャが確認済み - 実装の準備完了
 
 ---
 
-## Phase 4: User Story 2 - Navigate Empty State Gracefully (Priority: P2)
+## Phase 2: 基盤（型定義 & データベースアクセス）
 
-**Goal**: Display a clear message when no posts are available instead of showing an empty or confusing page
+**目的**: すべてのユーザーストーリーが依存する中核的な型定義とデータベースユーティリティ
 
-**Independent Test**: Temporarily clear the database or set all posts to `public=0`, navigate to `/posts`, and verify a friendly "No posts available" message is displayed.
+**⚠️ 重要**: これらはユーザーストーリーの実装を開始する前に完了する必要があります
 
-**Acceptance Criteria** (from spec.md):
-- ✅ Empty state message displays when no posts exist
-- ✅ Only public posts shown (drafts excluded)
+- [ ] T006 [P] `backend/src/interface.ts` に Tag 型を追加: Zod を使用して `TagSchema` と `Tag` 型を定義
+- [ ] T007 [P] `backend/src/interface.ts` に PostListItem 型を追加: slug, title, tags[], createDate を持つ `PostListItemSchema` と `PostListItem` 型を定義
+- [ ] T008 データベース接続ヘルパーが存在しない場合は作成: `backend/src/repository.ts` が `connection()` 関数をエクスポートすることを確認（既に存在）
 
-### Implementation for User Story 2
-
-- [ ] T023 [US2] Add empty state check in `front/src/app/posts/page.tsx`: Add conditional `if (posts.length === 0)` before rendering list
-- [ ] T024 [US2] Implement empty state UI: Return JSX with message like "No posts available yet. Check back soon!"
-- [ ] T025 [US2] Add basic styling for empty state: Apply centered layout and appropriate typography
-
-#### Verification
-
-- [ ] T026 [US2] Test empty state: Run `docker-compose exec db mysql -u backend -ptoor -e "USE webblog; UPDATE post_revision SET public=0;"` then reload `/posts`
-- [ ] T027 [US2] Verify empty message displays: Confirm friendly message appears (not blank page or error)
-- [ ] T028 [US2] Restore test data: Run `docker-compose exec db mysql -u backend -ptoor webblog < db/10_testData.sql` to restore posts
-
-**Checkpoint**: User Story 2 complete - Graceful empty state handling
+**チェックポイント**: 型定義の準備完了 - ユーザーストーリーを実装可能
 
 ---
 
-## Phase 5: Polish & Final Verification
+## Phase 3: ユーザーストーリー 1 - 最新のブログ記事を閲覧（優先度: P1）🎯 MVP
 
-**Purpose**: Final integration testing, code quality, and documentation
+**目標**: タイトル、クリック可能なリンク、タグを含むすべての公開ブログ記事の一覧を新しい順に表示
 
-- [ ] T029 [P] Run TypeScript compiler on backend: `cd backend && npx tsc --noEmit` (verify zero errors)
-- [ ] T030 [P] Run TypeScript compiler on frontend: `cd front && npx tsc --noEmit` (verify zero errors)
-- [ ] T031 [P] Run ESLint on backend: `cd backend && pnpm run lint` (verify zero errors)
-- [ ] T032 [P] Run ESLint on frontend: `cd front && pnpm run lint` (verify zero errors)
-- [ ] T033 Run full integration test: Start `docker-compose up`, verify all services start without errors
-- [ ] T034 Manual functional test: Perform complete user journey - view posts list, click links, verify tags, test empty state
-- [ ] T035 Verify performance goal: Measure page load time for `/posts` (should be <2 seconds)
-- [ ] T036 Check edge cases: Test posts without tags (verify empty array), long titles (verify truncation if needed), database failures (verify error handling)
-- [ ] T037 Update documentation if needed: Add any relevant notes to `quickstart.md` or README about new posts list page
-- [ ] T038 Commit changes: `git add -A && git commit -m "Implement posts list page (Issue #16)"`
+**独立したテスト**: `http://localhost:3000/posts` にアクセスし、タイトル（クリック可能）、タグを含む記事一覧が表示され、最新の記事が最初に表示されることを確認。記事タイトルをクリックして `/posts/[slug]` にナビゲートすることを確認。
 
-**Checkpoint**: Feature complete and verified
+**受け入れ基準**（spec.md より）:
+- ✅ タイトルとクリック可能なリンクを含む記事一覧が表示される
+- ✅ 各記事にタグが表示される
+- ✅ 記事が新しい順に並んでいる
+- ✅ リンクが正しい詳細ページにナビゲートする
 
----
+### ユーザーストーリー 1 の実装
 
-## Dependencies & Execution Order
+#### バックエンド: データベースリポジトリ
 
-### Phase Dependencies
+- [ ] T009 [US1] `backend/src/repositories/post.ts` に `fetchAllPosts()` を実装: 2クエリパターン（記事クエリ + タグクエリ）を実行し `PostListItem[]` を返す関数を作成
+- [ ] T010 [US1] `fetchAllPosts()` に記事クエリを追加: SELECT post.id, post.slug, post.create_date, post_revision.title FROM post JOIN (最新の公開リビジョンのサブクエリ) ORDER BY create_date DESC
+- [ ] T011 [US1] `fetchAllPosts()` にタグクエリを追加: SELECT tag_post.post_id, tag_name.id, tag_name.name FROM tag_post JOIN tag_name WHERE post_id IN (...)
+- [ ] T012 [US1] `fetchAllPosts()` にデータマージロジックを実装: 記事とタグを適切な Zod 検証で `PostListItem[]` に結合
 
-- **Setup (Phase 1)**: No dependencies - can start immediately
-- **Foundational (Phase 2)**: Depends on Setup - BLOCKS all user stories
-- **User Story 1 (Phase 3)**: Depends on Foundational - Core functionality (MVP)
-- **User Story 2 (Phase 4)**: Depends on User Story 1 (uses same component, adds empty state check)
-- **Polish (Phase 5)**: Depends on all user stories complete
+#### バックエンド: tRPC エンドポイント
 
-### User Story Dependencies
+- [ ] T013 [US1] `backend/src/index.ts` に `postsList` エンドポイントを追加: `fetchAllPosts()` を呼び出し `Promise<PostListItem[]>` を返す `t.procedure.query()` を定義
+- [ ] T014 [US1] tRPC エンドポイント型エクスポートを確認: `AppRouter` 型がフロントエンドの型安全性のために `postsList` を含むことを確認
 
-- **User Story 1 (P1 - Browse Posts)**: Independent - can start after Foundational
-- **User Story 2 (P2 - Empty State)**: Depends on US1 (modifies same page component)
+#### フロントエンド: 記事一覧ページ
 
-### Within Each User Story
+- [ ] T015 [US1] `front/src/app/posts/page.tsx` の 501 スタブを置き換え: `trpc.postsList.query()` を呼び出す Server Component を作成
+- [ ] T016 [US1] 記事一覧のレンダリングを実装: `posts` 配列をマップし、各記事を `<Link href={/posts/${post.slug}}>{post.title}</Link>` でレンダリング
+- [ ] T017 [US1] タグのレンダリングを実装: 各記事の `post.tags` をマップしてタグ名を表示（例: `<span>{tag.name}</span>`）
+- [ ] T018 [US1] 基本的なスタイリングを追加: 読みやすさのための最小限の CSS を適用（リストフォーマット、リンクスタイリング、タグ表示）
 
-**US1 (Browse Posts)**:
-- Backend tasks (T009-T014): Can run in parallel after Foundational complete
-- Frontend tasks (T015-T018): Must wait for backend tRPC endpoint (T013 complete)
-- Verification (T019-T022): Sequential after implementation complete
+#### 検証
 
-**US2 (Empty State)**:
-- Implementation (T023-T025): Must wait for US1 complete (modifies same component)
-- Verification (T026-T028): Sequential after T025
+- [ ] T019 [US1] 手動テスト: `docker-compose up` を起動し、`http://localhost:3000/posts` にアクセスして記事が正しく表示されることを確認
+- [ ] T020 [US1] クリック可能なリンクをテスト: 記事タイトルをクリックし、`/posts/[slug]` へのナビゲーションが動作することを確認
+- [ ] T021 [US1] タグ表示をテスト: 各記事のすべてのタグが表示されることを確認
+- [ ] T022 [US1] 並び順をテスト: 記事が新しい順に並んでいることを確認（`create_date` をチェック）
 
-### Parallel Opportunities
-
-**Setup (Phase 1)**:
-- T003-T004: Backend and frontend builds (parallel)
-
-**Foundational (Phase 2)**:
-- T006-T007: Type definitions (parallel - different types)
-
-**US1 Backend**:
-- T009-T012: Repository implementation (sequential - T012 depends on T009-T011)
-- T013-T014: tRPC endpoint (sequential - T014 depends on T013)
-
-**US1 Frontend**:
-- T015-T018: Page implementation (sequential - build on same file)
-
-**Polish (Phase 5)**:
-- T029-T032: Linting and type checking (4 parallel tasks)
+**チェックポイント**: ユーザーストーリー 1 完了 - MVP 機能（ブログ記事が閲覧可能）
 
 ---
 
-## Implementation Strategy
+## Phase 4: ユーザーストーリー 2 - 空の状態を適切に処理（優先度: P2）
 
-### MVP First (User Story 1 Only - Browse Posts)
+**目標**: 記事が利用できない場合、空白や混乱するページではなく、明確なメッセージを表示
 
-1. **Complete Phase 1: Setup** (T001-T005) - Verify infrastructure
-2. **Complete Phase 2: Foundational** (T006-T008) - Type definitions
-3. **Complete Phase 3: User Story 1** (T009-T022) - Core posts list functionality
-4. **STOP and VALIDATE**:
-   - Posts list displays correctly
-   - Links work
-   - Tags show
-   - Performance acceptable
-5. **Deploy/Demo if ready** - Blog is browsable (MVP achieved)
+**独立したテスト**: 一時的にデータベースをクリアするか、すべての記事を `public=0` に設定し、`/posts` にアクセスして、フレンドリーな「記事がありません」メッセージが表示されることを確認。
 
-### Incremental Delivery
+**受け入れ基準**（spec.md より）:
+- ✅ 記事が存在しない場合に空の状態メッセージが表示される
+- ✅ 公開記事のみが表示される（下書きは除外）
 
-1. **Foundation** (Phases 1-2) → Infrastructure ready
-2. **User Story 1** (Phase 3) → Deploy/Demo (MVP - browsable blog)
-3. **User Story 2** (Phase 4) → Deploy/Demo (graceful empty state)
-4. **Polish** (Phase 5) → Final quality gates passed
+### ユーザーストーリー 2 の実装
 
----
+- [ ] T023 [US2] `front/src/app/posts/page.tsx` に空の状態チェックを追加: リストをレンダリングする前に `if (posts.length === 0)` 条件を追加
+- [ ] T024 [US2] 空の状態 UI を実装: 「まだ記事がありません。またお越しください！」のようなメッセージを含む JSX を返す
+- [ ] T025 [US2] 空の状態の基本的なスタイリングを追加: 中央揃えレイアウトと適切なタイポグラフィを適用
 
-## Success Criteria Mapping
+#### 検証
 
-| Success Criterion | Verified By | Task IDs |
-|-------------------|-------------|----------|
-| SC-001: Page load <2 seconds | Performance test | T035 |
-| SC-002: 100% links navigate correctly | Manual link testing | T020 |
-| SC-003: All tags visible | Manual tags inspection | T021 |
-| SC-004: Consistent newest-first order | Manual ordering check | T022 |
-| SC-005: Handles empty/100+ posts | Edge case testing | T036 |
-| SC-006: Zero draft posts displayed | Database query verification | T002, T010 |
+- [ ] T026 [US2] 空の状態をテスト: `docker-compose exec db mysql -u backend -ptoor -e "USE webblog; UPDATE post_revision SET public=0;"` を実行してから `/posts` を再読み込み
+- [ ] T027 [US2] 空のメッセージ表示を確認: フレンドリーなメッセージが表示されることを確認（空白ページやエラーではない）
+- [ ] T028 [US2] テストデータを復元: `docker-compose exec db mysql -u backend -ptoor webblog < db/10_testData.sql` を実行して記事を復元
+
+**チェックポイント**: ユーザーストーリー 2 完了 - 適切な空の状態処理
 
 ---
 
-## Estimated Effort
+## Phase 5: 仕上げ & 最終検証
 
-| Phase | User Story | Task Count | Estimated Time | Cumulative |
-|-------|------------|------------|----------------|------------|
-| 1: Setup | - | 5 | 10 min | 10 min |
-| 2: Foundational | - | 3 | 15 min | 25 min |
-| 3: US1 Backend | Browse Posts | 6 | 45 min | 70 min |
-| 3: US1 Frontend | Browse Posts | 4 | 30 min | 100 min |
-| 3: US1 Verification | Browse Posts | 4 | 15 min | 115 min |
-| 4: US2 | Empty State | 6 | 20 min | 135 min |
-| 5: Polish | - | 10 | 25 min | 160 min |
+**目的**: 最終統合テスト、コード品質、ドキュメント
 
-**Total**: 38 tasks, ~2.5 hours estimated
+- [ ] T029 [P] バックエンドで TypeScript コンパイラを実行: `cd backend && npx tsc --noEmit`（ゼロエラーを確認）
+- [ ] T030 [P] フロントエンドで TypeScript コンパイラを実行: `cd front && npx tsc --noEmit`（ゼロエラーを確認）
+- [ ] T031 [P] バックエンドで ESLint を実行: `cd backend && pnpm run lint`（ゼロエラーを確認）
+- [ ] T032 [P] フロントエンドで ESLint を実行: `cd front && pnpm run lint`（ゼロエラーを確認）
+- [ ] T033 完全な統合テストを実行: `docker-compose up` を起動し、すべてのサービスがエラーなしで起動することを確認
+- [ ] T034 手動機能テストを実行: 完全なユーザージャーニーを実行 - 記事一覧を表示、リンクをクリック、タグを確認、空の状態をテスト
+- [ ] T035 パフォーマンス目標を確認: `/posts` のページ読み込み時間を測定（2秒未満であるべき）
+- [ ] T036 エッジケースを確認: タグのない記事をテスト（空の配列を確認）、長いタイトル（必要に応じて切り捨てを確認）、データベース失敗（エラー処理を確認）
+- [ ] T037 必要に応じてドキュメントを更新: 新しい記事一覧ページに関する関連ノートを `quickstart.md` または README に追加
+- [ ] T038 変更をコミット: `git add -A && git commit -m "記事一覧ページを実装 (Issue #16)"`
 
-**Recommended**: Execute in one session with checkpoint validations between user stories.
-
----
-
-## Notes
-
-- **Existing Infrastructure**: tRPC, database connection, and routing already configured
-- **Minimal Scope**: Straightforward read operation, no complex business logic
-- **Manual Testing**: Sufficient for MVP (Jest tests optional enhancement)
-- **Type Safety**: tRPC provides full-stack type safety automatically
-- **Future Enhancements**: Pagination (#32), search (#17) are separate issues
+**チェックポイント**: 機能が完成し検証済み
 
 ---
 
-**Status**: Tasks ready for implementation. Start with Phase 1 (Setup).
+## 依存関係 & 実行順序
+
+### フェーズ依存関係
+
+- **セットアップ（Phase 1）**: 依存関係なし - すぐに開始可能
+- **基盤（Phase 2）**: セットアップに依存 - すべてのユーザーストーリーをブロック
+- **ユーザーストーリー 1（Phase 3）**: 基盤に依存 - コア機能（MVP）
+- **ユーザーストーリー 2（Phase 4）**: ユーザーストーリー 1 に依存（同じコンポーネントを使用、空の状態チェックを追加）
+- **仕上げ（Phase 5）**: すべてのユーザーストーリーの完了に依存
+
+### ユーザーストーリー依存関係
+
+- **ユーザーストーリー 1（P1 - 記事を閲覧）**: 独立 - 基盤の後に開始可能
+- **ユーザーストーリー 2（P2 - 空の状態）**: US1 に依存（同じページコンポーネントを変更）
+
+### 各ユーザーストーリー内
+
+**US1（記事を閲覧）**:
+- バックエンドタスク（T009-T014）: 基盤完了後に並列実行可能
+- フロントエンドタスク（T015-T018）: バックエンド tRPC エンドポイント（T013 完了）を待つ必要あり
+- 検証（T019-T022）: 実装完了後に順次実行
+
+**US2（空の状態）**:
+- 実装（T023-T025）: US1 完了を待つ必要あり（同じコンポーネントを変更）
+- 検証（T026-T028）: T025 後に順次実行
+
+### 並列実行の機会
+
+**セットアップ（Phase 1）**:
+- T003-T004: バックエンドとフロントエンドのビルド（並列）
+
+**基盤（Phase 2）**:
+- T006-T007: 型定義（並列 - 異なる型）
+
+**US1 バックエンド**:
+- T009-T012: リポジトリ実装（順次 - T012 は T009-T011 に依存）
+- T013-T014: tRPC エンドポイント（順次 - T014 は T013 に依存）
+
+**US1 フロントエンド**:
+- T015-T018: ページ実装（順次 - 同じファイルに構築）
+
+**仕上げ（Phase 5）**:
+- T029-T032: リンティングと型チェック（4つの並列タスク）
+
+---
+
+## 実装戦略
+
+### MVP ファースト（ユーザーストーリー 1 のみ - 記事を閲覧）
+
+1. **Phase 1 完了: セットアップ**（T001-T005）- インフラストラクチャを確認
+2. **Phase 2 完了: 基盤**（T006-T008）- 型定義
+3. **Phase 3 完了: ユーザーストーリー 1**（T009-T022）- コア記事一覧機能
+4. **停止して検証**:
+   - 記事一覧が正しく表示される
+   - リンクが動作する
+   - タグが表示される
+   - パフォーマンスが許容範囲
+5. **準備ができたらデプロイ/デモ** - ブログが閲覧可能（MVP 達成）
+
+### 段階的な提供
+
+1. **基盤**（Phase 1-2）→ インフラストラクチャの準備完了
+2. **ユーザーストーリー 1**（Phase 3）→ デプロイ/デモ（MVP - 閲覧可能なブログ）
+3. **ユーザーストーリー 2**（Phase 4）→ デプロイ/デモ（適切な空の状態）
+4. **仕上げ**（Phase 5）→ 最終品質ゲート合格
+
+---
+
+## 成功基準のマッピング
+
+| 成功基準 | 検証方法 | タスク ID |
+|---------|---------|---------|
+| SC-001: ページ読み込み <2秒 | パフォーマンステスト | T035 |
+| SC-002: 100% のリンクが正しくナビゲート | 手動リンクテスト | T020 |
+| SC-003: すべてのタグが表示される | 手動タグ検査 | T021 |
+| SC-004: 一貫した新しい順の並び | 手動並び順チェック | T022 |
+| SC-005: 空/100以上の記事を処理 | エッジケーステスト | T036 |
+| SC-006: 下書き記事が表示されない | データベースクエリ検証 | T002, T010 |
+
+---
+
+## 推定工数
+
+| Phase | ユーザーストーリー | タスク数 | 推定時間 | 累積 |
+|-------|----------------|---------|---------|------|
+| 1: セットアップ | - | 5 | 10分 | 10分 |
+| 2: 基盤 | - | 3 | 15分 | 25分 |
+| 3: US1 バックエンド | 記事を閲覧 | 6 | 45分 | 70分 |
+| 3: US1 フロントエンド | 記事を閲覧 | 4 | 30分 | 100分 |
+| 3: US1 検証 | 記事を閲覧 | 4 | 15分 | 115分 |
+| 4: US2 | 空の状態 | 6 | 20分 | 135分 |
+| 5: 仕上げ | - | 10 | 25分 | 160分 |
+
+**合計**: 38タスク、推定2.5時間
+
+**推奨**: ユーザーストーリー間のチェックポイント検証を含む1セッションで実行。
+
+---
+
+## 注記
+
+- **既存インフラストラクチャ**: tRPC、データベース接続、ルーティングは既に設定済み
+- **最小スコープ**: 複雑なビジネスロジックのない単純な読み取り操作
+- **手動テスト**: MVP には十分（Jest テストはオプションの拡張）
+- **型安全性**: tRPC が自動的にフルスタック型安全性を提供
+- **将来の拡張**: ページネーション（#32）、検索（#17）は別の Issue
+
+---
+
+**ステータス**: タスクは実装の準備ができています。Phase 1（セットアップ）から開始してください。
