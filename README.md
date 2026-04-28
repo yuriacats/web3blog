@@ -1,8 +1,15 @@
 # web3blog
-このアプリは以下でホストしています。  
+このアプリは以下でホストしています。
 https://blog.yuriacats.net
 
 WEB三層構造・AWS・CI/CDを理解するために作ったアプリケーションです。
+
+## 前提条件
+
+- **Node.js 22.x LTS**
+- **pnpm** (enabled via corepack: `corepack enable pnpm`)
+- Docker & Docker Compose
+
 ## 開発
 dev-container上での開発を想定しています。
 
